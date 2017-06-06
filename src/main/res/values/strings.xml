@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">visningsappen</string>
+    <string name="banner_ad_unit_id">ca-app-pub-6954747802734407/6788717373</string>
+
+    <string name="setting_max_radius_title">Max avstånd till visning</string>
+    <string name="setting_min_rum_title">Minst antal rum</string>
+    <string name="setting_min_sqm_title">Minst antal kvadratmeter</string>
+    <string name="setting_max_price_title">Max pris</string>
+    <string name="setting_alert_on_title">Popup-meddelande</string>
+    <string name="setting_sound_on_title">Ljud vid Popup</string>
+    <string name="contact_subtitle">Är det något du undrar över eller vill du komma i kontakt med Visningsappen? Fyll då i nedanstående formulär och skicka.</string>
+
+</resources>

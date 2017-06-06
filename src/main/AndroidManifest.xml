@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dev.macx.visningsappen">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/mark1"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <service android:name=".GeofenceTrasitionService" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDvMVm1gi4Sa-m21lVvRl-NsEYITQUlqXM" />
+
+        <!--
+        my key: AIzaSyDLVvoy7BOfnR7TXVq0QpxCyxkcWDzpE2U
+
+        -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+
+        <!-- Splash screen -->
+        <activity android:name=".Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".InfoActivity" />
+        <activity android:name=".SettingActivity" />
+        <activity android:name=".ContactActivity"
+            android:windowSoftInputMode="adjustPan"
+            />
+        <activity android:name=".MapActivity"></activity>
+    </application>
+
+</manifest>

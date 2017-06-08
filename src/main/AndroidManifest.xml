@@ -18,7 +18,11 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDvMVm1gi4Sa-m21lVvRl-NsEYITQUlqXM" />
+            android:value="AIzaSyCTRxRJSKDE-Pfq4dsFTdiLkWOn3xt7uSI" />
+
+        <!--AIzaSyCTRxRJSKDE-Pfq4dsFTdiLkWOn3xt7uSI- map key midhun-->
+
+       <!-- AIzaSyDvMVm1gi4Sa-m21lVvRl-NsEYITQUlqXM - old key removed by midhun-->
 
         <!--
         my key: AIzaSyDLVvoy7BOfnR7TXVq0QpxCyxkcWDzpE2U
@@ -27,6 +31,7 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
 
 
         <!-- Splash screen -->

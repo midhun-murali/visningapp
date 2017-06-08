@@ -9,5 +9,10 @@
     <string name="setting_alert_on_title">Popup-meddelande</string>
     <string name="setting_sound_on_title">Ljud vid Popup</string>
     <string name="contact_subtitle">Är det något du undrar över eller vill du komma i kontakt med Visningsappen? Fyll då i nedanstående formulär och skicka.</string>
+    <string name="location_permission_denied">This feature requires location permission to get current location. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'ServBot\'.</string>
+    <string name="permission_required_toast">Location permission is required for this feature.</string>
+    <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_add_geofence">AddGeofenceActivity</string>
 
 </resources>

@@ -7,7 +7,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.renderscript.Double2;
@@ -19,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
+import android.location.LocationListener;
 import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
@@ -29,12 +32,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dev.macx.visningsappen.Utils.PermissionUtils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -74,6 +78,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     private LocationRequest locationRequest;
     private final int UPDATE_INTERVAL =  1000;
     private final int FASTEST_INTERVAL = 900;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 0;
 
 
 
@@ -84,7 +89,14 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         setContentView(R.layout.activity_map);
 
         createGoogleApi();
+        initMap();
         setupViews();
+    }
+
+    private void initMap() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -201,15 +213,12 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
             }
         });
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
 
 
     }
 
-    @Override
+    /*@Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
@@ -311,6 +320,134 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         });
 
 
+    }*/
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.getUiSettings().setScrollGesturesEnabled(false);
+        currentzoom = 16.0f;
+        enableMyLocation();
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, true);
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else {
+            Location location = locationManager.getLastKnownLocation(bestProvider);
+            if (location != null) {
+                onLocationChanged(location);
+            }
+            locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
+        }
+        if(Container.getInstance().objectList == null){ return;}
+        if (Container.getInstance().objectList.length != 0){
+
+            int length = Container.getInstance().objectList.length;
+
+            for (int i = 0;i< Container.getInstance().objectList.length;i++){
+
+                if(Container.getInstance().objectList[i] == null){ break;}
+                Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
+                Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
+                LatLng objectloc = new LatLng(lat,lng);
+                mMap.addMarker(new MarkerOptions().position(objectloc).icon(BitmapDescriptorFactory.fromResource(R.drawable.object1)));
+
+
+            }
+
+            mMap.setOnInfoWindowClickListener(this);
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+
+                    infowindow.setVisibility(View.VISIBLE);
+
+
+//set data from marker
+                    Double markerlat = marker.getPosition().latitude;
+                    Double markerlng = marker.getPosition().longitude;
+
+                    for (int i = 0;i< Container.getInstance().objectList.length;i++){
+
+                        Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
+                        Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
+
+                        final int  index = i;
+                        if(lat.equals(markerlat) && lng.equals(markerlng)){
+                            // this is marker's data
+                            addresstxt.setText(Container.getInstance().objectList[i].address);
+                            descriptiontxt.setText(Container.getInstance().objectList[i].descr);
+                            pricetxt.setText("Pris: " + Container.getInstance().objectList[i].price + " kr");
+                            rumtxt.setText("Rum: " + Container.getInstance().objectList[i].rooms + " rok");
+                            kvmtxt.setText("Stirek: " + Container.getInstance().objectList[i].sqm + " kvm");
+
+
+                            // processing time
+                            String startsub = Container.getInstance().objectList[i].start.substring(11,16);
+                            String endsub = Container.getInstance().objectList[i].end.substring(11,16);
+                            timetxt.setText("Visningstid: " + startsub+"-"+endsub);
+
+
+                            //setting url
+                            final String object_url = Container.getInstance().objectList[i].url;
+                            String htmlstr = "<a href='"+object_url+"'>Kllcka för mer information</a>";
+                            Spanned Text = Html.fromHtml(htmlstr);
+                            moretxt.setText(Text);
+
+                            moretxt.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    increaseNum(index);
+                                }
+                            });
+
+                            // load image photo and logo
+                            byte[] decodedString = Base64.decode(Container.getInstance().objectList[i].photo, Base64.DEFAULT);
+                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            photoimg.setImageBitmap(decodedByte);
+
+                            decodedString = Base64.decode(Container.getInstance().objectList[i].logo, Base64.DEFAULT);
+                            decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            logoimg.setImageBitmap(decodedByte);
+
+                        }
+
+                    }
+
+                    return false;
+                }
+            });
+            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+
+                    //Do what you want on obtained latLng
+                    Log.v("Clicked","now");
+                    infowindow.setVisibility(View.INVISIBLE);
+
+                }
+            });
+
+        }
+
+
+        //setRecyclerViewAdapter();
+    }
+
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+        }
     }
 
 
@@ -423,8 +560,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 .setInterval(UPDATE_INTERVAL)
                 .setFastestInterval(FASTEST_INTERVAL);
 
-        if ( checkPermission() )
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+        /*if ( checkPermission() )
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);*/
     }
 
 
@@ -473,6 +610,18 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         Container.getInstance().currentlng = String.valueOf(location.getLongitude());
     }
 
+    @Override public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override public void onProviderDisabled(String provider) {
+
+    }
+
     // Get last known location
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation()");
@@ -491,5 +640,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         }
         else askPermission();
     }
+
+
 
 }

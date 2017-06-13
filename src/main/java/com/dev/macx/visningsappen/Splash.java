@@ -254,11 +254,12 @@ public class Splash extends AppCompatActivity implements
 
 
                     getNoneObjMsg();
-                    return;
+
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                    getAppInfo();
+                    //finish();
+
                 }
             }
         }, 2000);
@@ -302,11 +303,10 @@ public class Splash extends AppCompatActivity implements
                     Log.v("saved nonobjmsg:",tmp);
                     getDistanceList();
 
-                    return;
                 }else {
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                    getNoneObjMsg();
+                    //finish();
                 }
             }
         }, 3000);
@@ -350,12 +350,11 @@ public class Splash extends AppCompatActivity implements
 
                     Log.v("saved nonobjmsg:",tmp);
                     getPriceList();
-                    return;
 
                 }else {
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                    getDistanceList();
+                    //finish();
                 }
             }
         }, 500);
@@ -398,11 +397,12 @@ public class Splash extends AppCompatActivity implements
 
 
                     getRumList();
-                    return;
+
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                    getPriceList();
+                    //finish();
+
                 }
             }
         }, 500);
@@ -447,11 +447,10 @@ public class Splash extends AppCompatActivity implements
                     Log.v("saved rumList:",tmp);
 
                     getKvmList();
-                    return;
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                    getRumList();
+                    //finish();
                 }
             }
         }, 500);
@@ -493,11 +492,10 @@ public class Splash extends AppCompatActivity implements
                     Log.v("saved sqmList:",Container.getInstance().kvmList.toString());
 
                     getObjectList();
-                    return;
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                    getKvmList();
+                    //finish();
                 }
             }
         }, 500);
@@ -518,10 +516,10 @@ public class Splash extends AppCompatActivity implements
         String minRoom = settings.getString("Minrooms","1");
         Container.getInstance().selectedrum = minRoom;
 
-        String minSqm = settings.getString("Minsqm","25");
+        String minSqm = settings.getString("Minsqm","50");
         Container.getInstance().selectedsqm = minSqm;
 
-        String maxPrice = settings.getString("Maxprice","6000000");
+        String maxPrice = settings.getString("Maxprice","10000000");
         Container.getInstance().selectedprice = maxPrice;
 
         String alerton = settings.getString("alerton","1");
@@ -530,24 +528,27 @@ public class Splash extends AppCompatActivity implements
         String soundon = settings.getString("soundon","1");
         Container.getInstance().soundon = soundon;
 
-        if(Container.getInstance().currentlat == null){
-            String latitude = "59.345";
-            String longitude ="18.055";
-        }else{
+        //if(Container.getInstance().currentlat == null){
+            String latitude = "59.328720";
+            String longitude ="18.029720";
+        /*}else{
             String latitude = Container.getInstance().currentlat; // "59.345";
             String longitude =  Container.getInstance().currentlng; //"18.055";
         }
 
         String latitude = Container.getInstance().currentlat; // "59.345";
-        String longitude =  Container.getInstance().currentlng; //"18.055";
+        String longitude =  Container.getInstance().currentlng; //"18.055";*/
 
 
 
         final PostData post_ObjectList = new PostData(this);
 
-        String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
-                + "Latitude=" + latitude + "&" +"Longitude=" + longitude;
+        /*String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
+                + "Latitude=" + latitude + "&" +"Longitude=" + longitude;*/
+        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + maxRadius + "&Minsqm=" + minSqm;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;
+        //String info_url = "http://visningsappen.se/communicationModel/getObject.php?Latitude=59.328720&Longitude=18.029720&Minrooms=1&Maxprice=10000000&MaxRadius=250&Minsqm=50";
+
         post_ObjectList.execute(info_url,"getObjectList",send_data);
 
         final Handler handler = new Handler();
@@ -572,7 +573,9 @@ public class Splash extends AppCompatActivity implements
                     if (tmp.equals("[]")){
                         //   getObjectList();
                         //   return;
+                        Toast.makeText(getApplicationContext(),"No objects available",Toast.LENGTH_SHORT).show();
                     }else {
+                        Toast.makeText(getApplicationContext(),"Objects available",Toast.LENGTH_SHORT).show();
                         Container.getInstance().objectList = onPasingJsonObjArraydata(tmp);
 
                         ObjectModel[] database = Container.getInstance().objectList;
@@ -584,11 +587,10 @@ public class Splash extends AppCompatActivity implements
                     // close this activity
                     finish();
 
-                    return;
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                    getObjectList();
+                    //finish();
                 }
 
             }

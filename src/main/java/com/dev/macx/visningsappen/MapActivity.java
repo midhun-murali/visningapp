@@ -325,7 +325,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.getUiSettings().setScrollGesturesEnabled(false);
+        mMap.getUiSettings().setScrollGesturesEnabled(true);
         currentzoom = 16.0f;
         enableMyLocation();
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);

@@ -18,15 +18,23 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dev.macx.visningsappen.Utils.Constants;
+import com.dev.macx.visningsappen.Utils.SimpleGeofence;
+import com.dev.macx.visningsappen.Utils.SimpleGeofenceStore;
+import com.dev.macx.visningsappen.Utils.Utility;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +43,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 
 
@@ -52,6 +61,7 @@ public class Splash extends AppCompatActivity implements
     private LocationRequest locationRequest;
     private final int UPDATE_INTERVAL =  1000;
     private final int FASTEST_INTERVAL = 900;
+    SimpleGeofenceStore simpleGeofenceStore;
 
 
     private ProgressDialog dialog1;
@@ -67,37 +77,48 @@ public class Splash extends AppCompatActivity implements
         Typeface custom_font = Typeface.createFromAsset(getAssets(),  "FrederickatheGreat-Regular.ttf");
 
         tx.setTypeface(custom_font);
-
-        createGoogleApi();
+        simpleGeofenceStore = new SimpleGeofenceStore(this);
+        if (!isGooglePlayServicesAvailable()) {
+            Log.e(TAG, "Google Play services unavailable.");
+            finish();
+            return;
+        }
+        initGoogleAPI();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
 
-        // Call GoogleApiClient connection when starting the Activity
-        googleApiClient.connect();
+    /**
+     * Checks if Google Play services is available.
+     *
+     * @return true if it is.
+     */
+    private boolean isGooglePlayServicesAvailable() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (ConnectionResult.SUCCESS == resultCode) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Google Play services is available.");
+            }
+            return true;
+        } else {
+            Log.e(TAG, "Google Play services is unavailable.");
+            return false;
+        }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        // Disconnect GoogleApiClient when stopping Activity
-          googleApiClient.disconnect();
-    }
 
 
     // Create GoogleApiClient instance
-    private void createGoogleApi() {
-        Log.d(TAG, "createGoogleApi()");
-        if ( googleApiClient == null ) {
-            googleApiClient = new GoogleApiClient.Builder( this )
-                    .addConnectionCallbacks( this )
-                    .addOnConnectionFailedListener( this )
-                    .addApi( LocationServices.API )
-                    .build();
-        }
+    private void initGoogleAPI() {
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        googleApiClient.connect();
+        Toast.makeText(Splash.this, "google api client connected", Toast.LENGTH_SHORT).show();
+
     }
 
     // Check for permission to access Location
@@ -203,11 +224,11 @@ public class Splash extends AppCompatActivity implements
                 // This method will be executed once the timer is over
                 // Start your app main activity
 
-                googleApiClient.disconnect();
 
                 dialog1 = ProgressDialog.show(this, "Loading..",
                         "Wait a second...", true);
-                getAppInfo();
+                getObjectList();
+                //getAppInfo();
 
 
 
@@ -254,6 +275,7 @@ public class Splash extends AppCompatActivity implements
 
 
                     getNoneObjMsg();
+                    //Toast.makeText(getApplicationContext(),"appinfo error success!",Toast.LENGTH_SHORT).show();
 
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
@@ -302,6 +324,7 @@ public class Splash extends AppCompatActivity implements
 
                     Log.v("saved nonobjmsg:",tmp);
                     getDistanceList();
+                    //Toast.makeText(getApplicationContext(),"Noneobject success!",Toast.LENGTH_SHORT).show();
 
                 }else {
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
@@ -350,6 +373,7 @@ public class Splash extends AppCompatActivity implements
 
                     Log.v("saved nonobjmsg:",tmp);
                     getPriceList();
+                    //Toast.makeText(getApplicationContext(),"Distance list success!",Toast.LENGTH_SHORT).show();
 
                 }else {
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
@@ -397,6 +421,7 @@ public class Splash extends AppCompatActivity implements
 
 
                     getRumList();
+                    //Toast.makeText(getApplicationContext(),"price list success!",Toast.LENGTH_SHORT).show();
 
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
@@ -447,6 +472,7 @@ public class Splash extends AppCompatActivity implements
                     Log.v("saved rumList:",tmp);
 
                     getKvmList();
+                    //Toast.makeText(getApplicationContext(),"Rum list success!",Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
                     getRumList();
@@ -492,6 +518,7 @@ public class Splash extends AppCompatActivity implements
                     Log.v("saved sqmList:",Container.getInstance().kvmList.toString());
 
                     getObjectList();
+                    //Toast.makeText(getApplicationContext(),"kvm list success!",Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
                     getKvmList();
@@ -579,13 +606,9 @@ public class Splash extends AppCompatActivity implements
                         Container.getInstance().objectList = onPasingJsonObjArraydata(tmp);
 
                         ObjectModel[] database = Container.getInstance().objectList;
+                        addLocationGeofences();
+
                     }
-
-                    Intent i = new Intent(Splash.this, MainActivity.class);
-                    startActivity(i);
-
-                    // close this activity
-                    finish();
 
                 }else{
                     Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
@@ -596,6 +619,105 @@ public class Splash extends AppCompatActivity implements
             }
         }, 2000);
 
+    }
+
+    public void addLocationGeofences() {
+
+        if (Container.getInstance().objectList == null) {
+            Toast.makeText(Splash.this, "Object list empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (Container.getInstance().objectList.length != 0) {
+
+            int length = Container.getInstance().objectList.length;
+            Toast.makeText(Splash.this, "Object list not empty", Toast.LENGTH_SHORT).show();
+
+            for (int i = 0; i < Container.getInstance().objectList.length; i++) {
+
+                if (Container.getInstance().objectList[i] == null) {
+                    Toast.makeText(Splash.this, "Object list empty 2", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
+                Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
+                createGeofences(lat, lng);
+
+            }
+            Intent i = new Intent(Splash.this, MainActivity.class);
+            startActivity(i);
+
+            // close this activity
+            finish();
+
+
+        }
+    }
+
+
+    public void createGeofences(Double latitude, Double longitude) {
+        Float radius = 300.00f;
+        String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        SimpleGeofence simpleGeofence = new SimpleGeofence(
+                geofenceId,                // geofenceId.
+                latitude,
+                longitude,
+                radius,
+                Geofence.NEVER_EXPIRE,
+                Geofence.GEOFENCE_TRANSITION_ENTER,
+                Constants.NOT_CHECKED);
+
+        // Store these flat versions in SharedPreferences and add them to the geofence list.
+        simpleGeofenceStore.setGeofence(geofenceId, simpleGeofence);
+        // Store id list
+        Utility.setGeoFenceIdList(geofenceId, this);
+        //Toast.makeText(Splash.this, "creating geofence", Toast.LENGTH_SHORT).show();
+
+        //setupGeofence(simpleGeofence);
+
+        addGeofence(simpleGeofence.toGeofence());
+    }
+
+    private void addGeofence(Geofence geofence) {
+        GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .addGeofence(geofence).build();
+
+        PendingIntent pendingIntent = getGeofenceTransitionPendingIntent();
+        Toast.makeText(Splash.this, "adding geofence", Toast.LENGTH_SHORT).show();
+
+        if (googleApiClient.isConnected()) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                Toast.makeText(Splash.this, "Permission not granted", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            LocationServices.GeofencingApi.addGeofences(googleApiClient, geofencingRequest, pendingIntent).setResultCallback(new ResultCallback<Status>() {
+                @Override public void onResult(@NonNull Status status) {
+                    if (status.isSuccess()) {
+                        Toast.makeText(Splash.this, "Starting geofence transition service", Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(Splash.this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            });
+        } else {
+            googleApiClient.connect();
+            addLocationGeofences();
+            Toast.makeText(Splash.this, "google api client not connected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private PendingIntent getGeofenceTransitionPendingIntent() {
+        Intent intent = new Intent(Splash.this, GeofenceTransitionsIntentService.class);
+        return PendingIntent.getService(Splash.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public String onPasingJsondata(String str,String key) {

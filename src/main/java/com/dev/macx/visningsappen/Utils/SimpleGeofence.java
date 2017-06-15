@@ -15,21 +15,7 @@ public class SimpleGeofence {
 
     private String status;
 
-    public String getAddress() {
-        return address;
-    }
 
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    private final String address;
-    private final String startTime;
-    private final String endTime;
     private final double mLatitude;
     private final double mLongitude;
     private final float mRadius;
@@ -44,7 +30,7 @@ public class SimpleGeofence {
      * @param transition Type of Geofence transition.
      * @param status
      */
-    public SimpleGeofence(String geofenceId, String address, String startTime, String endTime, double latitude, double longitude, float radius,
+    public SimpleGeofence(String geofenceId, double latitude, double longitude, float radius,
                           long expiration, int transition, String status) {
         // Set the instance fields from the constructor.
         this.mId = geofenceId;
@@ -53,9 +39,6 @@ public class SimpleGeofence {
         this.mRadius = radius;
         this.mExpirationDuration = expiration;
         this.mTransitionType = transition;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.address = address;
         this.status=status;
     }
 

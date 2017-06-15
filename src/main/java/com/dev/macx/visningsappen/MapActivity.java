@@ -2,10 +2,14 @@ package com.dev.macx.visningsappen;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
@@ -33,6 +37,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dev.macx.visningsappen.Utils.PermissionUtils;
+import com.dev.macx.visningsappen.Utils.SimpleGeofence;
+import com.dev.macx.visningsappen.Utils.SimpleGeofenceStore;
+import com.dev.macx.visningsappen.Utils.Utility;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -47,6 +54,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -55,6 +63,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWindowClickListener,
         OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -67,9 +76,14 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     private TextView addresstxt, descriptiontxt, pricetxt, rumtxt, kvmtxt, timetxt, moretxt;
     private ImageView logoimg, photoimg;
     private  float currentzoom;
+    private BroadcastReceiver mReceiver;
 
     LatLng latLng;
     Marker currLocationMarker;
+    private SimpleGeofenceStore mGeofenceStorage;
+    List<Geofence> mGeofenceList;
+    List<SimpleGeofence> mSimpleGeofenceList;
+    // Persistent storage for geofences.
 
     private GoogleApiClient googleApiClient;
     private Location lastLocation;
@@ -89,6 +103,9 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         setContentView(R.layout.activity_map);
 
         createGoogleApi();
+        mGeofenceStorage = new SimpleGeofenceStore(this);
+        mGeofenceList = new ArrayList<Geofence>();
+        mSimpleGeofenceList = new ArrayList<SimpleGeofence>();
         initMap();
         setupViews();
     }
@@ -355,6 +372,13 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
                 LatLng objectloc = new LatLng(lat,lng);
                 mMap.addMarker(new MarkerOptions().position(objectloc).icon(BitmapDescriptorFactory.fromResource(R.drawable.object1)));
+                    CircleOptions circleOptions = new CircleOptions()
+                            .center(objectloc)
+                            .radius(300)
+                            .fillColor(0x40ff0000)
+                            .strokeColor(Color.TRANSPARENT)
+                            .strokeWidth(2);
+                    mMap.addCircle(circleOptions);
 
 
             }
@@ -406,13 +430,13 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                             });
 
                             // load image photo and logo
-                            byte[] decodedString = Base64.decode(Container.getInstance().objectList[i].photo, Base64.DEFAULT);
+                            /*byte[] decodedString = Base64.decode(Container.getInstance().objectList[i].photo, Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                             photoimg.setImageBitmap(decodedByte);
 
                             decodedString = Base64.decode(Container.getInstance().objectList[i].logo, Base64.DEFAULT);
                             decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            logoimg.setImageBitmap(decodedByte);
+                            logoimg.setImageBitmap(decodedByte);*/
 
                         }
 
@@ -639,6 +663,52 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
             }
         }
         else askPermission();
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        initBroadcastReceiver();
+    }
+    @Override
+    protected void onPause() {
+        // TODO Auto-generated method stub
+        super.onPause();
+        //unregister our receiver
+        this.unregisterReceiver(this.mReceiver);
+    }
+
+    private void fetchGeofencesFromStore() {
+
+        String[] geofenceIdList = Utility.getGeoFenceIdList(this);
+        if (geofenceIdList != null && geofenceIdList.length > 0) {
+            for (int i = 0; i < geofenceIdList.length; i++) {
+                SimpleGeofence simpleGeofence = mGeofenceStorage.getGeofence(geofenceIdList[i]);
+                mSimpleGeofenceList.add(simpleGeofence);
+                mGeofenceList.add(simpleGeofence.toGeofence());
+            }
+        } else {
+            showMessage("No Geofences Added. Please add using the plus button.");
+        }
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void initBroadcastReceiver() {
+        IntentFilter intentFilter = new IntentFilter(
+                "android.intent.action.MAIN");
+
+        mReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                    mGeofenceList.clear();
+                    fetchGeofencesFromStore();
+            }
+        };
+        //registering our receiver
+        this.registerReceiver(mReceiver, intentFilter);
     }
 
 

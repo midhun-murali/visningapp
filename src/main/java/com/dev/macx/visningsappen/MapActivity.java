@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -36,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dev.macx.visningsappen.Utils.DialogFactory;
 import com.dev.macx.visningsappen.Utils.PermissionUtils;
 import com.dev.macx.visningsappen.Utils.SimpleGeofence;
 import com.dev.macx.visningsappen.Utils.SimpleGeofenceStore;
@@ -535,9 +537,13 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     private boolean checkPermission() {
         Log.d(TAG, "checkPermission()");
         // Ask for permission if it wasn't granted yet
+
+
         return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED );
     }
+
+
 
     // Asks for permission
     private void askPermission() {

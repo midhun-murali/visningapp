@@ -14,5 +14,8 @@
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="title_activity_add_geofence">AddGeofenceActivity</string>
+    <string name="cancel">Cancel</string>
+    <string name="okay">Okay</string>
+    <string name="permission_required">Permission required</string>
 
 </resources>

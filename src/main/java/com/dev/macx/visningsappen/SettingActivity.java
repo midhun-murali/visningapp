@@ -339,21 +339,39 @@ public class SettingActivity extends AppCompatActivity implements
 
         // get saved default settings.
 
-        SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+        /*SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
         String maxRadius = settings.getString("MaxRadius", "1250");
         String minRoom = settings.getString("Minrooms","1");
         String minSqm = settings.getString("Minsqm","25");
         String maxPrice = settings.getString("Maxprice","7000000");
 
         String latitude =  String.valueOf(lastLocation.getLatitude());
-        String longitude = String.valueOf(lastLocation.getLongitude());
+        String longitude = String.valueOf(lastLocation.getLongitude());*/
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+        String maxRadius = settings.getString("MaxRadius", "10000");
+        Container.getInstance().selectedradius = maxRadius;
+
+        String minRoom = settings.getString("Minrooms","1");
+        Container.getInstance().selectedrum = minRoom;
+
+        String minSqm = settings.getString("Minsqm","50");
+        Container.getInstance().selectedsqm = minSqm;
+
+        String maxPrice = settings.getString("Maxprice","10000000");
+        Container.getInstance().selectedprice = maxPrice;
+
+        //if(Container.getInstance().currentlat == null){
+        String latitude = "59.328720";
+        String longitude ="18.029720";
 
 
 
         final PostData post_ObjectList = new PostData(this);
 
-        String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
+        /*String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
                 + "Latitude=" + latitude + "&" +"Longitude=" + longitude;
+        String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;*/
+        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + maxRadius + "&Minsqm=" + minSqm;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;
 
         dialog = ProgressDialog.show(this, "Searching..",

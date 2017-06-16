@@ -761,7 +761,13 @@ public class Splash extends AppCompatActivity implements
 
         try {
 
-            JSONArray jsonRootObject = new JSONArray(str);
+            JSONObject obj = new JSONObject(str);
+            JSONArray jsonRootObject = obj.optJSONArray("objects");
+            //JSONArray jsonRootObject = new JSONArray(str);
+
+            //JSONArray jsonArray = anotherObj.getJSONArray("arrayKey");
+            //JSONArray jsonRootObject = anotherObj.getJSONArray("arrayKey");;
+            //JSONArray jsonRootObject = new JSONArray(str);
             result = Arrays.copyOf(result ,jsonRootObject.length());
 
             for (int i= 0;i<jsonRootObject.length();i++){
@@ -796,6 +802,50 @@ public class Splash extends AppCompatActivity implements
         return result;
 
     }
+
+
+   /* public ObjectModel[] onPasingJsonObjArraydata(String str) {
+
+
+        ObjectModel []result = new ObjectModel[1];
+
+        try {
+
+            JSONArray jsonRootObject = new JSONArray(str);
+            result = Arrays.copyOf(result ,jsonRootObject.length());
+
+            for (int i= 0;i<jsonRootObject.length();i++){
+                JSONObject temp = (JSONObject) jsonRootObject.get(i);
+                ObjectModel tempModel = new ObjectModel();
+
+
+                tempModel.maklare = temp.getString("object_maklare");
+                tempModel.logo = temp.getString("object_logo");
+                tempModel.address = temp.getString("object_address");
+                tempModel.price = temp.getString("object_price");
+                tempModel.rooms = temp.getString("object_rooms");
+                tempModel.sqm = temp.getString("object_sqm");
+                tempModel.realstart = temp.getString("object_realstart");
+                tempModel.start = temp.getString("object_start");
+                tempModel.end = temp.getString("object_end");
+                tempModel.photo = temp.getString("object_photo");
+                tempModel.url = temp.getString("object_url");
+                tempModel.lat = temp.getString("objekt_lat");
+                tempModel.lng = temp.getString("objekt_lng");
+                tempModel.clicked = temp.getString("object_clicked");
+                tempModel.descr = temp.getString("object_descr");
+
+                result[i] = tempModel;
+
+                Log.v("fetching a element!","success");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+
+    }*/
 
 
 }

@@ -81,6 +81,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     // Get the geofence that were triggered
                     List<Geofence> triggeringGeofences = geoFenceEvent.getTriggeringGeofences();
                     sendSimpleNotification("Visnigsappen", "Entered Location", this);
+                    if(simpleGeofenceStore != null && simpleGeofence.getId() != null)
                     simpleGeofenceStore.setGeofence(simpleGeofence.getId(),simpleGeofence);
                     Intent i = new Intent("android.intent.action.MAIN");
                     this.sendBroadcast(i);
@@ -89,6 +90,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
                 }
             }
+            if(simpleGeofenceStore != null && simpleGeofence.getId() != null)
             simpleGeofenceStore.setGeofence(simpleGeofence.getId(),simpleGeofence);
         }
     }

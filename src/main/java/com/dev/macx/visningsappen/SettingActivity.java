@@ -94,7 +94,282 @@ public class SettingActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
         createGoogleApi();
-        setupViews();
+        getNoneObjMsg();
+    }
+
+    public void getNoneObjMsg()
+    {
+        // dialog2 = ProgressDialog.show(this, "Loading..",
+        //         "Wait a second...", true);
+        // download app info
+        final PostData post_NoneObj = new PostData(this);
+        JSONObject json_past_temp=new JSONObject();
+        try{
+            json_past_temp.put("name","username");
+            json_past_temp.put("pwd","pw");
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String send_data=json_past_temp.toString();
+        String info_url = "http://visningsappen.se/communicationModel/getNoObjMsg.php?";
+        post_NoneObj.execute(info_url,"getNoneObjMsg",send_data);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //        dialog2.dismiss();
+                String tmp = post_NoneObj.getClient();
+                if (post_NoneObj.getReturnCode() == 200) {
+
+                    if (tmp.equals("{}")){
+                        getNoneObjMsg();
+
+                    }
+
+                    Log.v("nonobj_msg_string:",tmp);
+                    String msg = onPasingJsondata(tmp,"nothing");
+                    Container.getInstance().nonObjmsg = msg;
+
+                    Log.v("saved nonobjmsg:",tmp);
+                    getDistanceList();
+                    //Toast.makeText(getApplicationContext(),"Noneobject success!",Toast.LENGTH_SHORT).show();
+
+                }else {
+                    Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
+                    getNoneObjMsg();
+                    //finish();
+                }
+            }
+        }, 3000);
+
+
+    }
+
+    public void getDistanceList()
+    {
+        //   dialog3 = ProgressDialog.show(this, "Loading..",
+        //           "Wait a second...", true);
+        // download app info
+        final PostData post_disList = new PostData(this);
+        JSONObject json_past_temp=new JSONObject();
+        try{
+            json_past_temp.put("name","username");
+            json_past_temp.put("pwd","pw");
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String send_data=json_past_temp.toString();
+        String info_url = "http://visningsappen.se/communicationModel/getDistance.php?";
+        post_disList.execute(info_url,"getDistanceList",send_data);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //       dialog3.dismiss();
+                String tmp = post_disList.getClient();
+                if (post_disList.getReturnCode() == 200) {
+
+                    if (tmp.equals("[]")){
+                        getDistanceList();
+
+                    }
+
+                    Log.v("getdistancelist_string:",tmp);
+                    ArrayList distanceList = onPasingJsonArraydata(tmp);
+                    Container.getInstance().distanceList = distanceList;
+
+                    Log.v("saved nonobjmsg:",tmp);
+                    getPriceList();
+                    //Toast.makeText(getApplicationContext(),"Distance list success!",Toast.LENGTH_SHORT).show();
+
+                }else {
+                    Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
+                    getDistanceList();
+                    //finish();
+                }
+            }
+        }, 500);
+
+    }
+    public void getPriceList()
+    {
+        //  dialog4 = ProgressDialog.show(this, "Loading..",
+        //         "Wait a second...", true);
+        // download app info
+        final PostData post_priceList = new PostData(this);
+        JSONObject json_past_temp=new JSONObject();
+        try{
+            json_past_temp.put("name","username");
+            json_past_temp.put("pwd","pw");
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String send_data=json_past_temp.toString();
+        String info_url = "http://visningsappen.se/communicationModel/getPrice.php?";
+        post_priceList.execute(info_url,"getPriceList",send_data);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //         dialog4.dismiss();
+                String tmp = post_priceList.getClient();
+                if (post_priceList.getReturnCode() == 200) {
+
+                    if (tmp.equals("[]")){
+                        getPriceList();
+
+                    }
+
+                    Log.v("getpricelist_string:",tmp);
+                    ArrayList priceList = onPasingJsonArraydata(tmp);
+                    Container.getInstance().priceList = priceList;
+                    Log.v("saved pricelist:",tmp);
+
+
+                    getRumList();
+                    //Toast.makeText(getApplicationContext(),"price list success!",Toast.LENGTH_SHORT).show();
+
+                }else{
+                    Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
+                    getPriceList();
+                    //finish();
+
+                }
+            }
+        }, 500);
+
+    }
+
+    public void getRumList()
+    {
+        // dialog5 = ProgressDialog.show(this, "Loading..",
+        //         "Wait a second...", true);
+        // download app info
+        final PostData post_rumList = new PostData(this);
+        JSONObject json_past_temp=new JSONObject();
+        try{
+            json_past_temp.put("name","username");
+            json_past_temp.put("pwd","pw");
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String send_data=json_past_temp.toString();
+        String info_url = "http://visningsappen.se/communicationModel/getRum.php?";
+        post_rumList.execute(info_url,"getRumList",send_data);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //       dialog5.dismiss();
+                String tmp = post_rumList.getClient();
+                if (post_rumList.getReturnCode() == 200) {
+
+                    if (tmp.equals("[]")){
+                        getRumList();
+
+                    }
+
+
+                    Log.v("getrumlist_string:",tmp);
+                    ArrayList kvmList = onPasingJsonArraydata(tmp);
+                    Container.getInstance().kvmList = kvmList;
+
+                    Log.v("saved rumList:",tmp);
+
+                    getKvmList();
+                    //Toast.makeText(getApplicationContext(),"Rum list success!",Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
+                    getRumList();
+                    //finish();
+                }
+            }
+        }, 500);
+
+    }
+    public void getKvmList()
+    {
+        //  dialog6 = ProgressDialog.show(this, "Loading..",
+        //          "Wait a second...", true);
+        // download app info
+        final PostData post_KvmList = new PostData(this);
+        JSONObject json_past_temp=new JSONObject();
+        try{
+            json_past_temp.put("name","username");
+            json_past_temp.put("pwd","pw");
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String send_data=json_past_temp.toString();
+        String info_url = "http://visningsappen.se/communicationModel/getKvm.php?";
+        post_KvmList.execute(info_url,"getKvmList",send_data);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //  dialog6.dismiss();
+                String tmp = post_KvmList.getClient();
+                if (post_KvmList.getReturnCode() == 200) {
+                    if (tmp.equals("[]")){
+                        getKvmList();
+
+                    }
+
+                    Log.v("getsqmlist_string:",tmp);
+                    ArrayList sqmList = onPasingJsonArraydata(tmp);
+                    Container.getInstance().sqmList = sqmList;
+
+                    Log.v("saved sqmList:",Container.getInstance().kvmList.toString());
+
+                    setupViews();
+                    //Toast.makeText(getApplicationContext(),"kvm list success!",Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
+                    getKvmList();
+                    //finish();
+                }
+            }
+        }, 500);
+
+    }
+
+    public String onPasingJsondata(String str,String key) {
+
+
+        String result = "";
+        try {
+
+            JSONObject jsonRootObject = new JSONObject(str);
+            result = jsonRootObject.getString(key).toString();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+
+    }
+
+    public ArrayList onPasingJsonArraydata(String str) {
+
+
+        ArrayList result = new ArrayList();
+        try {
+
+            JSONArray jsonRootObject = new JSONArray(str);
+            for (int i= 0;i<jsonRootObject.length();i++){
+                result.add(jsonRootObject.get(i).toString());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+
     }
 
     public void setupViews(){

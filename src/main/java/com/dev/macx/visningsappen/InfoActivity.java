@@ -2,15 +2,21 @@ package com.dev.macx.visningsappen;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class InfoActivity extends AppCompatActivity {
 
@@ -25,7 +31,71 @@ public class InfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_info);
 
         setupViews();
-        infoTextView.setText(Container.getInstance().appinfo.toString());
+        getAppInfo();
+    }
+
+    public void getAppInfo() {
+
+
+        // download app info
+        final PostData post_info = new PostData(this);
+        JSONObject json_past_temp = new JSONObject();
+        try {
+            json_past_temp.put("name", "username");
+            json_past_temp.put("pwd", "pw");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String send_data = json_past_temp.toString();
+        String info_url = "http://visningsappen.se/communicationModel/getInfo.php?";
+        post_info.execute(info_url, "getAppInfo", send_data);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //        dialog1.dismiss();
+                String tmp = post_info.getClient();
+                if (post_info.getReturnCode() == 200) {
+
+                    if(tmp.equals("{}")){
+                        getAppInfo();
+
+                    }
+                    Log.v("info_string",tmp);
+                    String appInfo = onPasingJsondata(tmp,"infotext");
+                    Container.getInstance().appinfo = appInfo;
+                    Log.v("saved appInfo:",tmp);
+
+                    infoTextView.setText(Container.getInstance().appinfo.toString());
+                    //getNoneObjMsg();
+                    //Toast.makeText(getApplicationContext(),"appinfo error success!",Toast.LENGTH_SHORT).show();
+
+                }else{
+                    Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
+                    getAppInfo();
+                    //finish();
+
+                }
+            }
+        }, 2000);
+
+    }
+
+    public String onPasingJsondata(String str,String key) {
+
+
+        String result = "";
+        try {
+
+            JSONObject jsonRootObject = new JSONObject(str);
+            result = jsonRootObject.getString(key).toString();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+
     }
 
 

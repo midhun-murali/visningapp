@@ -116,12 +116,6 @@ public class Splash extends AppCompatActivity implements
 
     // Create GoogleApiClient instance
     private void initGoogleAPI() {
-
-        String locationPermission = Manifest.permission.ACCESS_FINE_LOCATION;
-        if (!(havePermission(locationPermission, this))) {
-            requestPermission(locationPermission, "Allow this app to access current location", LOCATION_PERMISSION_REQUEST_CODE);
-        }
-        else {
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(LocationServices.API)
                     .addConnectionCallbacks(this)
@@ -129,7 +123,7 @@ public class Splash extends AppCompatActivity implements
                     .build();
 
             googleApiClient.connect();
-        }
+
 
 
 
@@ -143,49 +137,18 @@ public class Splash extends AppCompatActivity implements
                 == PackageManager.PERMISSION_GRANTED );
     }
 
-    public void requestPermission(final String permission, final String permissionExplanationMessage, final int requestCode) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                permission)) {
 
-            DialogFactory.showDialog(this, R.string.permission_required, permissionExplanationMessage, R.string.okay, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    ActivityCompat.requestPermissions(Splash.this,
-                            new String[]{permission}, requestCode);
-                    initGoogleAPI();
-                }
-            }, R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                   finish();
-                }
-            }, true);
-
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{permission}, requestCode);
-            initGoogleAPI();
-
-
-        }
-    }
-
-    public static boolean havePermission(String permission, Context context) {
-        return Build.VERSION.SDK_INT < 23 || ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
-    }
 
 
     // Asks for permission
-   /* private void askPermission() {
+    private void askPermission() {
         Log.d(TAG, "askPermission()");
         ActivityCompat.requestPermissions(
                 this,
                 new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION },
                 REQ_PERMISSION
         );
-    }*/
+    }
 
     // Verify user's response of the permission requested
     @Override
@@ -222,6 +185,7 @@ public class Splash extends AppCompatActivity implements
                 .setInterval(UPDATE_INTERVAL)
                 .setFastestInterval(FASTEST_INTERVAL);
 
+        if ( checkPermission() )
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
@@ -255,7 +219,7 @@ public class Splash extends AppCompatActivity implements
     // Get last known location
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation()");
-
+        if ( checkPermission() ) {
             lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             if ( lastLocation != null ) {
                 Log.i(TAG, "LasKnown location. " +
@@ -284,6 +248,8 @@ public class Splash extends AppCompatActivity implements
                 startLocationUpdates();
             }
         }
+        else askPermission();
+    }
 
 
     public void getAppInfo() {
@@ -630,7 +596,6 @@ public class Splash extends AppCompatActivity implements
             public void run() {
                 String tmp = post_ObjectList.getClient();
 
-                dialog1.dismiss();
                 if (post_ObjectList.getReturnCode() == 200) {
 
                     if(tmp.equals("")){
@@ -689,10 +654,12 @@ public class Splash extends AppCompatActivity implements
                 createGeofences(lat, lng);
 
             }
-            Intent i = new Intent(Splash.this, MainActivity.class);
-            startActivity(i);
+
 
             // close this activity
+            dialog1.dismiss();
+            Intent i = new Intent(Splash.this, MainActivity.class);
+            startActivity(i);
             finish();
 
 

@@ -16,6 +16,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.renderscript.Double2;
 import android.support.annotation.NonNull;
@@ -64,6 +65,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -434,11 +439,15 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                             // load image photo and logo
                             /*byte[] decodedString = Base64.decode(Container.getInstance().objectList[i].photo, Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            photoimg.setImageBitmap(decodedByte);
+                            photoimg.setImageBitmap(decodedByte);*/
+                            new ImageLoadTask(Container.getInstance().objectList[i].logo, photoimg).execute();
 
-                            decodedString = Base64.decode(Container.getInstance().objectList[i].logo, Base64.DEFAULT);
+
+                            /*decodedString = Base64.decode(Container.getInstance().objectList[i].logo, Base64.DEFAULT);
                             decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                             logoimg.setImageBitmap(decodedByte);*/
+                            new ImageLoadTask(Container.getInstance().objectList[i].logo, logoimg).execute();
+
 
                         }
 
@@ -464,6 +473,41 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         //setRecyclerViewAdapter();
     }
 
+
+    public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
+
+        private String url;
+        private ImageView imageView;
+
+        public ImageLoadTask(String url, ImageView imageView) {
+            this.url = url;
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            try {
+                URL urlConnection = new URL(url);
+                HttpURLConnection connection = (HttpURLConnection) urlConnection
+                        .openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                return myBitmap;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            super.onPostExecute(result);
+            imageView.setImageBitmap(result);
+        }
+
+    }
     private void enableMyLocation() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {

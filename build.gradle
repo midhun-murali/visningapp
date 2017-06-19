@@ -27,10 +27,11 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
     testCompile 'junit:junit:4.12'
-    compile 'com.google.android.gms:play-services-ads:10.0.1'
-    compile 'com.google.android.gms:play-services-maps:10.0.1'
-    compile 'com.google.android.gms:play-services:10.0.1'
-    compile 'com.google.android.gms:play-services-wearable:10.0.1'
+    compile 'com.google.android.gms:play-services:11.0.1'
+    compile 'com.google.android.gms:play-services-ads:11.0.1'
+    compile 'com.google.android.gms:play-services-maps:11.0.1'
+    compile 'com.google.android.gms:play-services:11.0.1'
+    compile 'com.google.android.gms:play-services-wearable:11.0.1'
 
     compile 'com.android.support:multidex:1.0.1'
 }

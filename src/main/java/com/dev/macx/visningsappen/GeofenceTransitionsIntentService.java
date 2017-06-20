@@ -15,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -81,7 +82,9 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     // Get the geofence that were triggered
                     List<Geofence> triggeringGeofences = geoFenceEvent.getTriggeringGeofences();
                     sendSimpleNotification("Visnigsappen", "Entered Location", this);
-                    if(simpleGeofenceStore != null && simpleGeofence.getId() != null)
+                    if(simpleGeofence.getId()== null){
+                        simpleGeofence.setId(String.valueOf(System.currentTimeMillis()));
+                    }
                     simpleGeofenceStore.setGeofence(simpleGeofence.getId(),simpleGeofence);
                     Intent i = new Intent("android.intent.action.MAIN");
                     this.sendBroadcast(i);
@@ -90,7 +93,9 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
                 }
             }
-            if(simpleGeofenceStore != null && simpleGeofence.getId() != null)
+            if(simpleGeofence.getId()== null){
+                simpleGeofence.setId(String.valueOf(System.currentTimeMillis()));
+            }
             simpleGeofenceStore.setGeofence(simpleGeofence.getId(),simpleGeofence);
         }
     }

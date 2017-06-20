@@ -36,7 +36,7 @@ public class GeofenceTrasitionService extends IntentService {
 
         if(!Container.getInstance().alerton.equals("1")) return;
 
-        GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
+        /*GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         // Handling errors
         if ( geofencingEvent.hasError() ) {
             String errorMsg = getErrorString(geofencingEvent.getErrorCode() );
@@ -55,11 +55,11 @@ public class GeofenceTrasitionService extends IntentService {
 
             String geofenceTransitionDetails = getGeofenceTrasitionDetailsandSendNotification(triggeringGeofences );
 
-        }
+        }*/
     }
 
 
-    private String getGeofenceTrasitionDetailsandSendNotification(List<Geofence> triggeringGeofences) {
+   /* private String getGeofenceTrasitionDetailsandSendNotification(List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
         ArrayList<String> triggeringGeofencesList = new ArrayList<>();
         String msgindex = null;
@@ -68,15 +68,15 @@ public class GeofenceTrasitionService extends IntentService {
         }
 
         return msgindex;
-    }
+    }*/
 
-    private void sendNotification( String msg ) {
+    /*private void sendNotification( String msg ) {
         Log.i(TAG, "sendNotification: " + msg );
 
         // Intent to start the main Activity
-        Intent notificationIntent = SettingActivity.makeNotificationIntent(
+       *//* Intent notificationIntent = SettingActivity.makeNotificationIntent(
                 getApplicationContext(), msg
-        );
+        );*//*
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MainActivity.class);
@@ -92,7 +92,7 @@ public class GeofenceTrasitionService extends IntentService {
                 createNotification(msg, notificationPendingIntent));
 
 
-    }
+    }*/
 
     // Create notification
     private Notification createNotification(String msg, PendingIntent notificationPendingIntent) {

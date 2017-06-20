@@ -60,7 +60,7 @@ public class Splash extends AppCompatActivity implements
 
     // Splash screen timer
     private static int SPLASH_TIME_OUT = 1000;
-    private GoogleApiClient googleApiClient;
+    public GoogleApiClient googleApiClient;
     private Location lastLocation;
     private static final String TAG = Splash.class.getSimpleName();
     private final int REQ_PERMISSION = 999;
@@ -91,6 +91,10 @@ public class Splash extends AppCompatActivity implements
             return;
         }
         initGoogleAPI();
+    }
+
+    public GoogleApiClient getGoogleApiClient () {
+        return googleApiClient;
     }
 
 
@@ -549,7 +553,7 @@ public class Splash extends AppCompatActivity implements
         // get saved default settings.
 
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String maxRadius = settings.getString("MaxRadius", "10000");
+        /*String maxRadius = settings.getString("MaxRadius", "10000");
         Container.getInstance().selectedradius = maxRadius;
 
         String minRoom = settings.getString("Minrooms","1");
@@ -559,6 +563,24 @@ public class Splash extends AppCompatActivity implements
         Container.getInstance().selectedsqm = minSqm;
 
         String maxPrice = settings.getString("Maxprice","10000000");
+        Container.getInstance().selectedprice = maxPrice;
+
+        String alerton = settings.getString("alerton","1");
+        Container.getInstance().alerton = alerton;
+
+        String soundon = settings.getString("soundon","1");
+        Container.getInstance().soundon = soundon;*/
+
+        String maxRadius = "10000";
+        Container.getInstance().selectedradius = maxRadius;
+
+        String minRoom = "1";
+        Container.getInstance().selectedrum = minRoom;
+
+        String minSqm = "50";
+        Container.getInstance().selectedsqm = minSqm;
+
+        String maxPrice = "10000000";
         Container.getInstance().selectedprice = maxPrice;
 
         String alerton = settings.getString("alerton","1");

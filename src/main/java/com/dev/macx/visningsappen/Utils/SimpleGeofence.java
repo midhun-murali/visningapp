@@ -11,7 +11,7 @@ import com.google.android.gms.location.Geofence;
 public class SimpleGeofence {
 
     // Instance variables
-    private final String mId;
+    private String mId;
 
     private String status;
 
@@ -46,6 +46,10 @@ public class SimpleGeofence {
     public String getId() {
         return mId;
     }
+    public void setId(String mId) {
+        this.mId = mId;
+    }
+
     public double getLatitude() {
         return mLatitude;
     }

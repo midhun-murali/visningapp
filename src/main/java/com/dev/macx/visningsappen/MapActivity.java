@@ -73,7 +73,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWindowClickListener,
-        OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
 
     public ImageButton infobtn, homebtn, settingbtn, mailbtn, zoominbtn, zoomoutbtn;
@@ -109,12 +110,14 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        createGoogleApi();
         mGeofenceStorage = new SimpleGeofenceStore(this);
         mGeofenceList = new ArrayList<Geofence>();
         mSimpleGeofenceList = new ArrayList<SimpleGeofence>();
+        initGoogleAPI();
         initMap();
+        //getLastKnownLocation();
         setupViews();
+
     }
 
     private void initMap() {
@@ -123,21 +126,114 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         mapFragment.getMapAsync(this);
     }
 
+    private void initGoogleAPI() {
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        googleApiClient.connect();
+
+
+    }
+
+    private boolean checkPermission() {
+        Log.d(TAG, "checkPermission()");
+        // Ask for permission if it wasn't granted yet
+        return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED );
+    }
+
+
+
+
+    // Asks for permission
+    private void askPermission() {
+        Log.d(TAG, "askPermission()");
+        ActivityCompat.requestPermissions(
+                this,
+                new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION },
+                REQ_PERMISSION
+        );
+    }
+
+    // Verify user's response of the permission requested
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult()");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch ( requestCode ) {
+            case REQ_PERMISSION: {
+                if ( grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+                    // Permission granted
+                    getLastKnownLocation();
+
+                } else {
+                    // Permission denied
+                    permissionsDenied();
+                }
+                break;
+            }
+        }
+    }
+
+    // App cannot work without the permissions
+    private void permissionsDenied() {
+        Log.w(TAG, "permissionsDenied()");
+        // TODO close app and warn user
+    }
+
+    // Start location Updates
+  /*  private void startLocationUpdates(){
+        Log.i(TAG, "startLocationUpdates()");
+        locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL);
+
+        if ( checkPermission() )
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+    }*/
+
+
+    // GoogleApiClient.ConnectionCallbacks connected
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "onConnected()");
+        getLastKnownLocation();
+
+    }
+
+    // GoogleApiClient.ConnectionCallbacks suspended
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.w(TAG, "onConnectionSuspended()");
+    }
+
+    // GoogleApiClient.OnConnectionFailedListener fail
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.w(TAG, "onConnectionFailed()");
+    }
+
+
+   /* @Override
     protected void onStart() {
         super.onStart();
 
         // Call GoogleApiClient connection when starting the Activity
         googleApiClient.connect();
-    }
+    }*/
 
-    @Override
+   /* @Override
     protected void onStop() {
         super.onStop();
 
         // Disconnect GoogleApiClient when stopping Activity
         googleApiClient.disconnect();
-    }
+    }*/
 
     public void setupViews() {
 
@@ -566,7 +662,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
 
     // Create GoogleApiClient instance
-    private void createGoogleApi() {
+   /* private void createGoogleApi() {
         Log.d(TAG, "createGoogleApi()");
         if ( googleApiClient == null ) {
             googleApiClient = new GoogleApiClient.Builder( this )
@@ -624,7 +720,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     private void permissionsDenied() {
         Log.w(TAG, "permissionsDenied()");
         // TODO close app and warn user
-    }
+    }*/
 
     // Start location Updates
     private void startLocationUpdates(){
@@ -640,7 +736,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
 
     // GoogleApiClient.ConnectionCallbacks connected
-    @Override
+   /* @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "onConnected()");
         getLastKnownLocation();
@@ -655,7 +751,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Toast.makeText(this,"onConnectionFailed",Toast.LENGTH_SHORT).show();
     }
-
+*/
     @Override
     public void onLocationChanged(Location location) {
 

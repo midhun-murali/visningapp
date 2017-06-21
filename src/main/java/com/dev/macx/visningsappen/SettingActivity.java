@@ -218,6 +218,8 @@ public class SettingActivity extends AppCompatActivity implements
 
                 //dialog1 = ProgressDialog.show(this, "Loading..",
                        // "Wait a second...", true);
+                dialog = ProgressDialog.show(this, "Settings",
+                        "Fetching Settings", true);
                 getNoneObjMsg();
                 //getAppInfo();
 
@@ -740,7 +742,7 @@ public class SettingActivity extends AppCompatActivity implements
             swsound.setChecked(true);
         }
 
-
+        dialog.dismiss();
 
     }
 
@@ -757,6 +759,8 @@ public class SettingActivity extends AppCompatActivity implements
 
         String latitude =  String.valueOf(lastLocation.getLatitude());
         String longitude = String.valueOf(lastLocation.getLongitude());*/
+        dialog = ProgressDialog.show(this, "Searching..",
+                "Wait a second...", true);
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
         String maxRadius = settings.getString("MaxRadius", "10000");
         Container.getInstance().selectedradius = maxRadius;
@@ -784,8 +788,6 @@ public class SettingActivity extends AppCompatActivity implements
         String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + maxRadius + "&Minsqm=" + minSqm;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;
 
-        dialog = ProgressDialog.show(this, "Searching..",
-                "Wait a second...", true);
 
         post_ObjectList.execute(info_url,"getObjectList",send_data);
 
@@ -794,7 +796,6 @@ public class SettingActivity extends AppCompatActivity implements
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                dialog.dismiss();
 
                 String tmp = post_ObjectList.getClient();
                 if(tmp.equals("")) {
@@ -826,6 +827,10 @@ public class SettingActivity extends AppCompatActivity implements
                         //   getObjectList();
                         //   return;
                         Toast.makeText(getApplicationContext(),"No objects available",Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        Intent i = new Intent(SettingActivity.this, MapActivity.class);
+                        startActivity(i);
+                        finish();
                     }else {
                         //Toast.makeText(getApplicationContext(),"Objects available",Toast.LENGTH_SHORT).show();
                         Container.getInstance().objectList = onPasingJsonObjArraydata(tmp);
@@ -850,6 +855,10 @@ public class SettingActivity extends AppCompatActivity implements
 
         if (Container.getInstance().objectList == null) {
             Toast.makeText(SettingActivity.this, "Object list empty", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+            Intent i = new Intent(SettingActivity.this, MapActivity.class);
+            startActivity(i);
+            finish();
             return;
         }
         if (Container.getInstance().objectList.length != 0) {
@@ -871,7 +880,8 @@ public class SettingActivity extends AppCompatActivity implements
 
 
             // close this activity
-            Intent i = new Intent(SettingActivity.this, MainActivity.class);
+            dialog.dismiss();
+            Intent i = new Intent(SettingActivity.this, MapActivity.class);
             startActivity(i);
             finish();
 

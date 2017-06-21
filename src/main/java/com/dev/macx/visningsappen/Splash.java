@@ -11,12 +11,17 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -72,6 +77,7 @@ public class Splash extends AppCompatActivity implements
 
 
     private ProgressDialog dialog1;
+    LocationManager locationManager;
 
 
     @Override
@@ -90,7 +96,85 @@ public class Splash extends AppCompatActivity implements
             finish();
             return;
         }
+        if (isNetworkAvailable(this)) {
+            showDataAlert();
+        }
+        showGpsAlert();
         initGoogleAPI();
+    }
+
+    private void showGpsAlert() {
+
+            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                alertDialogBuilder.setMessage("Please enable your GPS to continue")
+                        .setCancelable(false)
+                        .setPositiveButton("Enable GPS",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // set intent to open settings
+                                        Intent callGPSSettingIntent = new Intent(
+                                                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                        startActivity(callGPSSettingIntent);
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                System.exit(0);
+                            }
+                        });
+                AlertDialog alert = alertDialogBuilder.create();
+                alert.show();
+            }
+
+
+    }
+
+    private void showDataAlert() {
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setMessage("Please enable your Mobile data to continue")
+                    .setCancelable(false)
+                    .setPositiveButton("Enable Mobile data",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // set intent to open settings
+                                    Intent callDataSettingIntent = new Intent(
+                                            Settings.ACTION_DATA_ROAMING_SETTINGS);
+                                    startActivity(callDataSettingIntent);
+                                }
+                            });
+            alertDialogBuilder.setNegativeButton("Cancel",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            System.exit(0);
+                        }
+                    });
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();
+        }
+
+
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        if (context != null) {
+            boolean result = true;
+            ConnectivityManager connectivityManager = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager
+                    .getActiveNetworkInfo();
+            if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
+                result = false;
+            }
+            return result;
+        } else {
+            return false;
+        }
     }
 
     public GoogleApiClient getGoogleApiClient () {
@@ -634,6 +718,9 @@ public class Splash extends AppCompatActivity implements
                         //   getObjectList();
                         //   return;
                         Toast.makeText(getApplicationContext(),"No objects available",Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(Splash.this, MainActivity.class);
+                        startActivity(i);
+                        finish();
                     }else {
                         //Toast.makeText(getApplicationContext(),"Objects available",Toast.LENGTH_SHORT).show();
                         Container.getInstance().objectList = onPasingJsonObjArraydata(tmp);
@@ -658,6 +745,9 @@ public class Splash extends AppCompatActivity implements
 
         if (Container.getInstance().objectList == null) {
             Toast.makeText(Splash.this, "Object list empty", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(Splash.this, MainActivity.class);
+            startActivity(i);
+            finish();
             return;
         }
         if (Container.getInstance().objectList.length != 0) {

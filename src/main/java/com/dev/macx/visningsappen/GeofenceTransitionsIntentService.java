@@ -81,7 +81,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 {
                     // Get the geofence that were triggered
                     List<Geofence> triggeringGeofences = geoFenceEvent.getTriggeringGeofences();
-                    sendSimpleNotification("Visnigsappen", "Entered Location", this);
+                    sendSimpleNotification("Visnigsappen", "You have reached the place you are looking for.", this);
                     if(simpleGeofence.getId()== null){
                         simpleGeofence.setId(String.valueOf(System.currentTimeMillis()));
                     }
@@ -112,10 +112,10 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 notificationIntent, 0);
         //        PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
         //                new Intent(ctx, Splash.class), 0);
-        Bitmap image = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
+        Bitmap image = BitmapFactory.decodeResource(context.getResources(), R.drawable.mark1);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.drawable.mark1)
                         .setLargeIcon(image)
                         .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                         .setContentTitle(title)

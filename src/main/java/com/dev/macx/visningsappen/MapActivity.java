@@ -15,6 +15,8 @@ import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -23,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -101,6 +104,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     private final int UPDATE_INTERVAL =  1000;
     private final int FASTEST_INTERVAL = 900;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 0;
+    LocationManager locationManager;
 
 
 
@@ -115,6 +119,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         mSimpleGeofenceList = new ArrayList<SimpleGeofence>();
         initGoogleAPI();
         initMap();
+        showGpsAlert();
         //getLastKnownLocation();
         setupViews();
 
@@ -134,6 +139,36 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 .build();
 
         googleApiClient.connect();
+
+
+    }
+
+
+    private void showGpsAlert() {
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setMessage("Please enable your GPS to continue")
+                    .setCancelable(false)
+                    .setPositiveButton("Enable GPS",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // set intent to open settings
+                                    Intent callGPSSettingIntent = new Intent(
+                                            android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    startActivity(callGPSSettingIntent);
+                                }
+                            });
+            alertDialogBuilder.setNegativeButton("Cancel",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            System.exit(0);
+                        }
+                    });
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();
+        }
 
 
     }

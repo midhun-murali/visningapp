@@ -963,9 +963,14 @@ public class SettingActivity extends AppCompatActivity implements
 
         try {
 
-            JSONArray jsonRootObject = new JSONArray(str);
+            JSONObject obj = new JSONObject(str);
+            JSONArray jsonRootObject = obj.optJSONArray("objects");
+            //JSONArray jsonRootObject = new JSONArray(str);
+
+            //JSONArray jsonArray = anotherObj.getJSONArray("arrayKey");
+            //JSONArray jsonRootObject = anotherObj.getJSONArray("arrayKey");;
+            //JSONArray jsonRootObject = new JSONArray(str);
             result = Arrays.copyOf(result ,jsonRootObject.length());
-            int length = jsonRootObject.length();
 
             for (int i= 0;i<jsonRootObject.length();i++){
                 JSONObject temp = (JSONObject) jsonRootObject.get(i);
@@ -991,8 +996,6 @@ public class SettingActivity extends AppCompatActivity implements
                 result[i] = tempModel;
 
                 Log.v("fetching a element!","success");
-
-
             }
 
         } catch (JSONException e) {

@@ -93,14 +93,11 @@ public class Splash extends AppCompatActivity implements
         simpleGeofenceStore = new SimpleGeofenceStore(this);
         if (!isGooglePlayServicesAvailable()) {
             Log.e(TAG, "Google Play services unavailable.");
-            finish();
-            return;
-        }
-        if (isNetworkAvailable(this)) {
-            showDataAlert();
+            Toast.makeText(Splash.this, "Google play services unavailable", Toast.LENGTH_SHORT).show();
+            /*finish();
+            return;*/
         }
         showGpsAlert();
-        initGoogleAPI();
     }
 
     private void showGpsAlert() {
@@ -116,6 +113,11 @@ public class Splash extends AppCompatActivity implements
                                         // set intent to open settings
                                         Intent callGPSSettingIntent = new Intent(
                                                 android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                        if (!isNetworkAvailable(Splash.this)) {
+                                            showDataAlert();
+                                        } else {
+                                            initGoogleAPI();
+                                        }
                                         startActivity(callGPSSettingIntent);
                                     }
                                 });
@@ -127,6 +129,12 @@ public class Splash extends AppCompatActivity implements
                         });
                 AlertDialog alert = alertDialogBuilder.create();
                 alert.show();
+            } else {
+                if (!isNetworkAvailable(Splash.this)) {
+                    showDataAlert();
+                } else {
+                    initGoogleAPI();
+                }
             }
 
 
@@ -134,8 +142,6 @@ public class Splash extends AppCompatActivity implements
 
     private void showDataAlert() {
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             alertDialogBuilder.setMessage("Please enable your Mobile data to continue")
                     .setCancelable(false)
@@ -146,6 +152,8 @@ public class Splash extends AppCompatActivity implements
                                     Intent callDataSettingIntent = new Intent(
                                             Settings.ACTION_DATA_ROAMING_SETTINGS);
                                     startActivity(callDataSettingIntent);
+                                    initGoogleAPI();
+
                                 }
                             });
             alertDialogBuilder.setNegativeButton("Cancel",
@@ -156,7 +164,6 @@ public class Splash extends AppCompatActivity implements
                     });
             AlertDialog alert = alertDialogBuilder.create();
             alert.show();
-        }
 
 
     }
@@ -204,6 +211,8 @@ public class Splash extends AppCompatActivity implements
 
     // Create GoogleApiClient instance
     private void initGoogleAPI() {
+
+        if (isNetworkAvailable(Splash.this)) {
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(LocationServices.API)
                     .addConnectionCallbacks(this)
@@ -211,6 +220,10 @@ public class Splash extends AppCompatActivity implements
                     .build();
 
             googleApiClient.connect();
+
+        } else {
+            initGoogleAPI();
+        }
 
 
 

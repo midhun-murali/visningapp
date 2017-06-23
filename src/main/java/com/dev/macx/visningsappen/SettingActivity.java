@@ -735,10 +735,10 @@ public class SettingActivity extends AppCompatActivity implements
         sqmspinner.setSelection(Container.getInstance().sqmList.indexOf(Container.getInstance().selectedsqm));
         prisspinner.setSelection(Container.getInstance().priceList.indexOf(Container.getInstance().selectedprice));
 
-        if(Container.getInstance().alerton.equals("1")){
+        if(Container.getInstance().alerton != null && Container.getInstance().alerton.equals("1")){
             swalert.setChecked(true);
         }
-        if(Container.getInstance().soundon.equals("1")){
+        if(Container.getInstance().soundon != null && Container.getInstance().soundon.equals("1")){
             swsound.setChecked(true);
         }
 
@@ -774,9 +774,18 @@ public class SettingActivity extends AppCompatActivity implements
         String maxPrice = settings.getString("Maxprice","10000000");
         Container.getInstance().selectedprice = maxPrice;
 
+        String latitude, longitude;
         //if(Container.getInstance().currentlat == null){
-        String latitude = "59.328720";
-        String longitude ="18.029720";
+        if(Container.getInstance().currentlat != null){
+            latitude = Container.getInstance().currentlat;
+        } else {
+            latitude = "59.328720";
+        }
+        if(Container.getInstance().currentlng != null){
+            longitude = Container.getInstance().currentlng;
+        } else {
+            longitude ="18.029720";
+        }
 
 
 
@@ -891,7 +900,7 @@ public class SettingActivity extends AppCompatActivity implements
 
 
     public void createGeofences(Double latitude, Double longitude) {
-        Float radius = 300.00f;
+        Float radius = 200.00f;
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

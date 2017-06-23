@@ -686,9 +686,18 @@ public class Splash extends AppCompatActivity implements
         String soundon = settings.getString("soundon","1");
         Container.getInstance().soundon = soundon;
 
+        String latitude, longitude;
         //if(Container.getInstance().currentlat == null){
-            String latitude = "59.328720";
-            String longitude ="18.029720";
+        if(Container.getInstance().currentlat != null){
+            latitude = Container.getInstance().currentlat;
+        } else {
+            latitude = "59.328720";
+        }
+        if(Container.getInstance().currentlng != null){
+            longitude = Container.getInstance().currentlng;
+        } else {
+            longitude ="18.029720";
+        }
         /*}else{
             String latitude = Container.getInstance().currentlat; // "59.345";
             String longitude =  Container.getInstance().currentlng; //"18.055";
@@ -793,7 +802,7 @@ public class Splash extends AppCompatActivity implements
 
 
     public void createGeofences(Double latitude, Double longitude) {
-        Float radius = 300.00f;
+        Float radius = 200.00f;
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

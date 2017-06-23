@@ -1,12 +1,14 @@
 package com.dev.macx.visningsappen;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dev.macx.visningsappen.Utils.Constants;
 import com.dev.macx.visningsappen.Utils.DialogFactory;
 import com.dev.macx.visningsappen.Utils.PermissionUtils;
 import com.dev.macx.visningsappen.Utils.SimpleGeofence;
@@ -51,7 +54,10 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -65,6 +71,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,6 +80,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWindowClickListener,
@@ -92,6 +102,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     LatLng latLng;
     Marker currLocationMarker;
     private SimpleGeofenceStore mGeofenceStorage;
+    private String value;
+    SimpleGeofenceStore simpleGeofenceStore;
     List<Geofence> mGeofenceList;
     List<SimpleGeofence> mSimpleGeofenceList;
     // Persistent storage for geofences.
@@ -105,6 +117,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     private final int FASTEST_INTERVAL = 900;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 0;
     LocationManager locationManager;
+    private ProgressDialog dialog;
 
 
 
@@ -113,8 +126,11 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-
+        if(getIntent().getExtras()!= null && getIntent().getExtras().getString("directmap")!= null) {
+            value = getIntent().getExtras().getString("directmap");
+        }
         mGeofenceStorage = new SimpleGeofenceStore(this);
+        simpleGeofenceStore = new SimpleGeofenceStore(this);
         mGeofenceList = new ArrayList<Geofence>();
         mSimpleGeofenceList = new ArrayList<SimpleGeofence>();
         initGoogleAPI();
@@ -510,13 +526,13 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
                 LatLng objectloc = new LatLng(lat,lng);
                 mMap.addMarker(new MarkerOptions().position(objectloc).icon(BitmapDescriptorFactory.fromResource(R.drawable.object1)));
-                    CircleOptions circleOptions = new CircleOptions()
+                    /*CircleOptions circleOptions = new CircleOptions()
                             .center(objectloc)
                             .radius(300)
                             .fillColor(0x40ff0000)
                             .strokeColor(Color.TRANSPARENT)
                             .strokeWidth(2);
-                    mMap.addCircle(circleOptions);
+                    mMap.addCircle(circleOptions);*/
 
 
             }
@@ -563,7 +579,9 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                             moretxt.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    increaseNum(index);
+                                    //increaseNum(index);
+                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(object_url));
+                                    startActivity(browserIntent);
                                 }
                             });
 
@@ -571,7 +589,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                             /*byte[] decodedString = Base64.decode(Container.getInstance().objectList[i].photo, Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                             photoimg.setImageBitmap(decodedByte);*/
-                            new ImageLoadTask(Container.getInstance().objectList[i].logo, photoimg).execute();
+                            new ImageLoadTask(Container.getInstance().objectList[i].photo, photoimg).execute();
 
 
                             /*decodedString = Base64.decode(Container.getInstance().objectList[i].logo, Base64.DEFAULT);
@@ -838,6 +856,9 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                         " | Lat: " + lastLocation.getLatitude());
 
                 startLocationUpdates();
+                if(value!= null && value.equalsIgnoreCase("true")) {
+                    getObjectList();
+                }
             } else {
                 Log.w(TAG, "No location retrieved yet");
                 startLocationUpdates();
@@ -890,6 +911,268 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         };
         //registering our receiver
         this.registerReceiver(mReceiver, intentFilter);
+    }
+
+
+    public void getObjectList()
+    {
+
+        // get saved default settings.
+
+        /*SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+        String maxRadius = settings.getString("MaxRadius", "1250");
+        String minRoom = settings.getString("Minrooms","1");
+        String minSqm = settings.getString("Minsqm","25");
+        String maxPrice = settings.getString("Maxprice","7000000");
+
+        String latitude =  String.valueOf(lastLocation.getLatitude());
+        String longitude = String.valueOf(lastLocation.getLongitude());*/
+        dialog = ProgressDialog.show(this, "Searching..",
+                "Wait a second...", true);
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+        String maxRadius = settings.getString("MaxRadius", "10000");
+        Container.getInstance().selectedradius = maxRadius;
+
+        String minRoom = settings.getString("Minrooms","1");
+        Container.getInstance().selectedrum = minRoom;
+
+        String minSqm = settings.getString("Minsqm","50");
+        Container.getInstance().selectedsqm = minSqm;
+
+        String maxPrice = settings.getString("Maxprice","10000000");
+        Container.getInstance().selectedprice = maxPrice;
+        String latitude, longitude;
+        //if(Container.getInstance().currentlat == null){
+        if(Container.getInstance().currentlat != null){
+            latitude = Container.getInstance().currentlat;
+        } else {
+            latitude = "59.328720";
+        }
+        if(Container.getInstance().currentlng != null){
+            longitude = Container.getInstance().currentlng;
+        } else {
+            longitude ="18.029720";
+        }
+
+
+
+
+        final PostData post_ObjectList = new PostData(this);
+
+        /*String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
+                + "Latitude=" + latitude + "&" +"Longitude=" + longitude;
+        String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;*/
+        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + maxRadius + "&Minsqm=" + minSqm;
+        String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;
+
+
+        post_ObjectList.execute(info_url,"getObjectList",send_data);
+
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                String tmp = post_ObjectList.getClient();
+                if(tmp.equals("")) {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        System.out.println(e);
+                    }
+
+                    tmp = post_ObjectList.getClient();
+
+                }
+
+
+
+                if (post_ObjectList.getReturnCode() == 200) {
+
+                    if(tmp.equals("")){
+                        try {//sleep 2 seconds
+                            Thread.sleep(2000);
+                            System.out.println("Testing..." + new Date());
+                            tmp = post_ObjectList.getClient();
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (tmp.equals("[]")){
+                        //   getObjectList();
+                        //   return;
+                        Toast.makeText(getApplicationContext(),"No objects available",Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }else {
+                        //Toast.makeText(getApplicationContext(),"Objects available",Toast.LENGTH_SHORT).show();
+                        Container.getInstance().objectList = onPasingJsonObjArraydata(tmp);
+
+                        ObjectModel[] database = Container.getInstance().objectList;
+                        addLocationGeofences();
+
+                    }
+
+                }else{
+                    Toast.makeText(getApplicationContext(),"Network Error!",Toast.LENGTH_SHORT).show();
+                    getObjectList();
+                    //finish();
+                }
+
+            }
+        }, 2000);
+
+    }
+
+    public void addLocationGeofences() {
+
+        if (Container.getInstance().objectList == null) {
+            Toast.makeText(MapActivity.this, "Object list empty", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+            return;
+        }
+        if (Container.getInstance().objectList.length != 0) {
+
+            int length = Container.getInstance().objectList.length;
+            // Toast.makeText(Splash.this, "Object list not empty", Toast.LENGTH_SHORT).show();
+
+            for (int i = 0; i < Container.getInstance().objectList.length; i++) {
+
+                if (Container.getInstance().objectList[i] == null) {
+                    // Toast.makeText(Splash.this, "Object list empty 2", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
+                Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
+                createGeofences(lat, lng);
+
+            }
+
+
+            Intent i = new Intent(MapActivity.this, MapActivity.class);
+            startActivity(i);
+            finish();
+            dialog.dismiss();
+
+
+        }
+    }
+
+
+    public void createGeofences(Double latitude, Double longitude) {
+        Float radius = 200.00f;
+        String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        SimpleGeofence simpleGeofence = new SimpleGeofence(
+                geofenceId,                // geofenceId.
+                latitude,
+                longitude,
+                radius,
+                Geofence.NEVER_EXPIRE,
+                Geofence.GEOFENCE_TRANSITION_ENTER,
+                Constants.NOT_CHECKED);
+
+        // Store these flat versions in SharedPreferences and add them to the geofence list.
+        simpleGeofenceStore.setGeofence(geofenceId, simpleGeofence);
+        // Store id list
+        Utility.setGeoFenceIdList(geofenceId, this);
+        //Toast.makeText(Splash.this, "creating geofence", Toast.LENGTH_SHORT).show();
+
+        //setupGeofence(simpleGeofence);
+
+        addGeofence(simpleGeofence.toGeofence());
+    }
+
+    private void addGeofence(Geofence geofence) {
+        GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .addGeofence(geofence).build();
+
+        PendingIntent pendingIntent = getGeofenceTransitionPendingIntent();
+        //Toast.makeText(Splash.this, "adding geofence", Toast.LENGTH_SHORT).show();
+
+        if (googleApiClient.isConnected()) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                Toast.makeText(MapActivity.this, "Permission not granted", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            LocationServices.GeofencingApi.addGeofences(googleApiClient, geofencingRequest, pendingIntent).setResultCallback(new ResultCallback<Status>() {
+                @Override public void onResult(@NonNull Status status) {
+                    if (status.isSuccess()) {
+                        //Toast.makeText(Splash.this, "Starting geofence transition service", Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(MapActivity.this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            });
+        } else {
+            googleApiClient.connect();
+            addLocationGeofences();
+            Toast.makeText(MapActivity.this, "google api client not connected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private PendingIntent getGeofenceTransitionPendingIntent() {
+        Intent intent = new Intent(MapActivity.this, GeofenceTransitionsIntentService.class);
+        return PendingIntent.getService(MapActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public ObjectModel[] onPasingJsonObjArraydata(String str) {
+
+
+        ObjectModel []result = new ObjectModel[1];
+
+        try {
+
+            JSONObject obj = new JSONObject(str);
+            JSONArray jsonRootObject = obj.optJSONArray("objects");
+            //JSONArray jsonRootObject = new JSONArray(str);
+
+            //JSONArray jsonArray = anotherObj.getJSONArray("arrayKey");
+            //JSONArray jsonRootObject = anotherObj.getJSONArray("arrayKey");;
+            //JSONArray jsonRootObject = new JSONArray(str);
+            result = Arrays.copyOf(result ,jsonRootObject.length());
+
+            for (int i= 0;i<jsonRootObject.length();i++){
+                JSONObject temp = (JSONObject) jsonRootObject.get(i);
+                ObjectModel tempModel = new ObjectModel();
+
+
+                tempModel.maklare = temp.getString("object_maklare");
+                tempModel.logo = temp.getString("object_logo");
+                tempModel.address = temp.getString("object_address");
+                tempModel.price = temp.getString("object_price");
+                tempModel.rooms = temp.getString("object_rooms");
+                tempModel.sqm = temp.getString("object_sqm");
+                tempModel.realstart = temp.getString("object_realstart");
+                tempModel.start = temp.getString("object_start");
+                tempModel.end = temp.getString("object_end");
+                tempModel.photo = temp.getString("object_photo");
+                tempModel.url = temp.getString("object_url");
+                tempModel.lat = temp.getString("objekt_lat");
+                tempModel.lng = temp.getString("objekt_lng");
+                tempModel.clicked = temp.getString("object_clicked");
+                tempModel.descr = temp.getString("object_descr");
+
+                result[i] = tempModel;
+
+                Log.v("fetching a element!","success");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+
     }
 
 

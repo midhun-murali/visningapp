@@ -12,11 +12,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e3852af5-ddf4-4acd-8ccf-e4132916ba59" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/GeofenceTransitionsIntentService.java" afterPath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/GeofenceTransitionsIntentService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/MapActivity.java" afterPath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/MapActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/SettingActivity.java" afterPath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/SettingActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/Splash.java" afterPath="$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/Splash.java" />
     </list>
     <ignored path="app.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -134,21 +129,21 @@
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="AndroidManifest.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/AndroidManifest.xml">
+          <provider editor-type-id="android-manifest">
+            <state />
+          </provider>
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="180">
               <caret line="10" column="78" selection-start-line="10" selection-start-column="78" selection-end-line="10" selection-end-column="78" />
               <folding />
             </state>
           </provider>
-          <provider editor-type-id="android-manifest">
-            <state />
-          </provider>
         </entry>
       </file>
       <file leaf-file-name="Splash.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/Splash.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="233">
+            <state relative-caret-position="11574">
               <caret line="651" column="21" selection-start-line="651" selection-start-column="21" selection-end-line="651" selection-end-column="21" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -160,7 +155,7 @@
       <file leaf-file-name="SharedPreferences.java" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/Android/Sdk/sources/android-25/android/content/SharedPreferences.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
+            <state relative-caret-position="450">
               <caret line="42" column="30" selection-start-line="42" selection-start-column="30" selection-end-line="42" selection-end-column="30" />
               <folding />
             </state>
@@ -170,7 +165,7 @@
       <file leaf-file-name="Utility.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/Utils/Utility.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
+            <state relative-caret-position="270">
               <caret line="19" column="8" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="8" />
               <folding />
             </state>
@@ -180,7 +175,7 @@
       <file leaf-file-name="Context.java" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/Android/Sdk/sources/android-25/android/content/Context.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
+            <state relative-caret-position="11052">
               <caret line="687" column="48" selection-start-line="687" selection-start-column="48" selection-end-line="687" selection-end-column="48" />
               <folding />
             </state>
@@ -190,7 +185,7 @@
       <file leaf-file-name="GeofenceTransitionsIntentService.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/GeofenceTransitionsIntentService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="621">
+            <state relative-caret-position="1098">
               <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
               <folding />
             </state>
@@ -200,15 +195,9 @@
       <file leaf-file-name="MapActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/MapActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="1047" column="42" selection-start-line="1047" selection-start-column="42" selection-end-line="1047" selection-end-column="42" />
+            <state relative-caret-position="225">
+              <caret line="1048" column="0" selection-start-line="1048" selection-start-column="0" selection-end-line="1048" selection-end-column="0" />
               <folding>
-                <element signature="e#21048#24604#0" expanded="true" />
-                <element signature="e#23150#23584#0" expanded="true" />
-                <element signature="e#23583#23584#0" expanded="true" />
-                <element signature="e#24603#24604#0" expanded="true" />
-                <element signature="e#34633#34863#0" expanded="true" />
-                <element signature="e#34862#34863#0" expanded="true" />
                 <marker date="1498203445385" expanded="false" signature="17435:17559" ph="(v) → {" />
                 <marker date="1498203445385" expanded="false" signature="17636:17667" ph="}" />
               </folding>
@@ -219,7 +208,7 @@
       <file leaf-file-name="SettingActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/SettingActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="387">
+            <state relative-caret-position="14976">
               <caret line="892" column="12" selection-start-line="892" selection-start-column="12" selection-end-line="894" selection-end-column="21" />
               <folding />
             </state>
@@ -231,9 +220,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="684">
               <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -246,6 +233,11 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="GenerateSignedApkSettings">
+    <option name="KEY_STORE_PATH" value="$PROJECT_DIR$/../visningsappenkeystore.jks" />
+    <option name="KEY_ALIAS" value="visningsappen" />
+    <option name="REMEMBER_PASSWORDS" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -2672,9 +2664,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane" />
+      <pane id="Scope" />
       <pane id="AndroidView">
         <subPane>
           <PATH>
@@ -2692,55 +2683,23 @@
               <option name="myItemId" value="visningsappen_Android" />
               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="visningsappen_Android" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="visningsappen_Android" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="visningsappen" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
       <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../DailyFish/delivery-boy-android-app/Deliveryboy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../visningsappenkeystore.jks" />
     <property name="device.picker.selection" value="d5153f7f" />
     <property name="DEBUGGABLE_DEVICE" value="oneplus-oneplus_a3003-d5153f7f" />
     <property name="DEBUGGABLE_PROCESS" value="com.dev.macx.visningsappen" />
     <property name="SHOW_ALL_PROCESSES" value="false" />
     <property name="DEBUGGER_ID" value="Auto" />
+    <property name="ExportApk.ApkPath" value="$PROJECT_DIR$" />
+    <property name="ExportApk.Flavors" value="" />
+    <property name="ExportApk.BuildType" value="release" />
   </component>
   <component name="RunManager" selected="Android App.app">
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
@@ -3135,7 +3094,14 @@
       <option name="project" value="LOCAL" />
       <updated>1498124928049</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="bugfixes">
+      <created>1498203831301</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1498203831301</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -3189,7 +3155,8 @@
     <MESSAGE value="geofence in progress" />
     <MESSAGE value="geofenceworking poc" />
     <MESSAGE value="geofenceworking test build" />
-    <option name="LAST_COMMIT_MESSAGE" value="geofenceworking test build" />
+    <MESSAGE value="bugfixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="bugfixes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3661,7 +3628,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="324">
           <caret line="18" column="67" selection-start-line="18" selection-start-column="67" selection-end-line="18" selection-end-column="67" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3853,7 +3819,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="167">
           <caret line="5657" column="0" selection-start-line="5657" selection-start-column="0" selection-end-line="5657" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3861,9 +3826,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="684">
           <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -3877,26 +3840,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/GeofenceTransitionsIntentService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
+        <state relative-caret-position="1098">
           <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/AndroidManifest.xml">
+      <provider editor-type-id="android-manifest">
+        <state />
+      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="10" column="78" selection-start-line="10" selection-start-column="78" selection-end-line="10" selection-end-column="78" />
           <folding />
         </state>
       </provider>
-      <provider editor-type-id="android-manifest">
-        <state />
-      </provider>
     </entry>
     <entry file="file://$USER_HOME$/Android/Sdk/sources/android-25/android/content/Context.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
+        <state relative-caret-position="11052">
           <caret line="687" column="48" selection-start-line="687" selection-start-column="48" selection-end-line="687" selection-end-column="48" />
           <folding />
         </state>
@@ -3904,7 +3867,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/Splash.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="233">
+        <state relative-caret-position="11574">
           <caret line="651" column="21" selection-start-line="651" selection-start-column="21" selection-end-line="651" selection-end-column="21" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -3914,7 +3877,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/Utils/Utility.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
+        <state relative-caret-position="270">
           <caret line="19" column="8" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="8" />
           <folding />
         </state>
@@ -3922,7 +3885,7 @@
     </entry>
     <entry file="file://$USER_HOME$/Android/Sdk/sources/android-25/android/content/SharedPreferences.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
+        <state relative-caret-position="450">
           <caret line="42" column="30" selection-start-line="42" selection-start-column="30" selection-end-line="42" selection-end-column="30" />
           <folding />
         </state>
@@ -3930,7 +3893,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/SettingActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="387">
+        <state relative-caret-position="14976">
           <caret line="892" column="12" selection-start-line="892" selection-start-column="12" selection-end-line="894" selection-end-column="21" />
           <folding />
         </state>
@@ -3938,15 +3901,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/dev/macx/visningsappen/MapActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="1047" column="42" selection-start-line="1047" selection-start-column="42" selection-end-line="1047" selection-end-column="42" />
+        <state relative-caret-position="225">
+          <caret line="1048" column="0" selection-start-line="1048" selection-start-column="0" selection-end-line="1048" selection-end-column="0" />
           <folding>
-            <element signature="e#21048#24604#0" expanded="true" />
-            <element signature="e#23150#23584#0" expanded="true" />
-            <element signature="e#23583#23584#0" expanded="true" />
-            <element signature="e#24603#24604#0" expanded="true" />
-            <element signature="e#34633#34863#0" expanded="true" />
-            <element signature="e#34862#34863#0" expanded="true" />
             <marker date="1498203445385" expanded="false" signature="17435:17559" ph="(v) → {" />
             <marker date="1498203445385" expanded="false" signature="17636:17667" ph="}" />
           </folding>

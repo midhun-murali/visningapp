@@ -650,7 +650,7 @@ public class Splash extends AppCompatActivity implements
         // get saved default settings.
 
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        /*String maxRadius = settings.getString("MaxRadius", "10000");
+        String maxRadius = "10000";
         Container.getInstance().selectedradius = maxRadius;
 
         String minRoom = settings.getString("Minrooms","1");
@@ -666,25 +666,8 @@ public class Splash extends AppCompatActivity implements
         Container.getInstance().alerton = alerton;
 
         String soundon = settings.getString("soundon","1");
-        Container.getInstance().soundon = soundon;*/
-
-        String maxRadius = "10000";
-        Container.getInstance().selectedradius = maxRadius;
-
-        String minRoom = "1";
-        Container.getInstance().selectedrum = minRoom;
-
-        String minSqm = "50";
-        Container.getInstance().selectedsqm = minSqm;
-
-        String maxPrice = "10000000";
-        Container.getInstance().selectedprice = maxPrice;
-
-        String alerton = settings.getString("alerton","1");
-        Container.getInstance().alerton = alerton;
-
-        String soundon = settings.getString("soundon","1");
         Container.getInstance().soundon = soundon;
+
 
         String latitude, longitude;
         //if(Container.getInstance().currentlat == null){
@@ -797,12 +780,20 @@ public class Splash extends AppCompatActivity implements
             finish();
 
 
+        } else {
+            Toast.makeText(Splash.this, "Object list empty", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(Splash.this, MainActivity.class);
+            startActivity(i);
+            finish();
+            return;
         }
     }
 
 
     public void createGeofences(Double latitude, Double longitude) {
-        Float radius = 200.00f;
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+        String sRadius = settings.getString("MaxRadius", "200");
+        Float radius = Float.valueOf(sRadius);
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

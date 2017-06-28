@@ -930,7 +930,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         dialog = ProgressDialog.show(this, "Searching..",
                 "Wait a second...", true);
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String maxRadius = settings.getString("MaxRadius", "10000");
+        String maxRadius = "10000";
         Container.getInstance().selectedradius = maxRadius;
 
         String minRoom = settings.getString("Minrooms","1");
@@ -1061,7 +1061,9 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
 
     public void createGeofences(Double latitude, Double longitude) {
-        Float radius = 200.00f;
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+        String sRadius = settings.getString("MaxRadius", "200");
+        Float radius = Float.valueOf(sRadius);
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

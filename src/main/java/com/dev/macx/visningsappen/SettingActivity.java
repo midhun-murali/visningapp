@@ -762,7 +762,7 @@ public class SettingActivity extends AppCompatActivity implements
         dialog = ProgressDialog.show(this, "Searching..",
                 "Wait a second...", true);
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String maxRadius = settings.getString("MaxRadius", "10000");
+        String maxRadius = "10000";
         Container.getInstance().selectedradius = maxRadius;
 
         String minRoom = settings.getString("Minrooms","1");
@@ -900,7 +900,9 @@ public class SettingActivity extends AppCompatActivity implements
 
 
     public void createGeofences(Double latitude, Double longitude) {
-        Float radius = 200.00f;
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+        String sRadius = settings.getString("MaxRadius", "200");
+        Float radius = Float.valueOf(sRadius);
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

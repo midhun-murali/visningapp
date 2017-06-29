@@ -1057,6 +1057,12 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
 
         }
+        else {
+            Toast.makeText(MapActivity.this, "Object list empty", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+            return;
+        }
+
     }
 
 

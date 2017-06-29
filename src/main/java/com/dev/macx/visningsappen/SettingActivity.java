@@ -896,6 +896,13 @@ public class SettingActivity extends AppCompatActivity implements
 
 
         }
+        else {
+            Toast.makeText(SettingActivity.this, "Object list empty", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(SettingActivity.this, MapActivity.class);
+            startActivity(i);
+            finish();
+            return;
+        }
     }
 
 

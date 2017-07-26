@@ -889,7 +889,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 mGeofenceList.add(simpleGeofence.toGeofence());
             }
         } else {
-            showMessage("No Geofences Added. Please add using the plus button.");
+            showMessage("No Geofences Added");
         }
     }
 

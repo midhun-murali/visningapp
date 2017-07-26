@@ -1,18 +1,26 @@
 package com.dev.macx.visningsappen;
 
+import android.*;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -31,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dev.macx.visningsappen.Utils.Constants;
+import com.dev.macx.visningsappen.Utils.DialogFactory;
 import com.dev.macx.visningsappen.Utils.SimpleGeofence;
 import com.dev.macx.visningsappen.Utils.SimpleGeofenceStore;
 import com.dev.macx.visningsappen.Utils.Utility;
@@ -38,6 +47,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -65,21 +75,22 @@ public class SettingActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,LocationListener {
 
-    private static final String NOTIFICATION_MSG = "NOTIFICATION MSG";
-    private GoogleApiClient googleApiClient;
-    private Location lastLocation;
-    private static final String TAG = MainActivity.class.getSimpleName();
-    private final int REQ_PERMISSION = 999;
+    private static final String TAG = "Settings";
+    private static final String LOCATION_PERMISSION_REQUEST_MESSAGE = "Storage permission is required";
+    public static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private LocationRequest locationRequest;
     // Defined in mili seconds.
     // This number in extremely low, and should be used only for debug
-    private final int UPDATE_INTERVAL =  1000;
+    private final int UPDATE_INTERVAL = 1000;
     private final int FASTEST_INTERVAL = 900;
+    private GoogleApiClient googleApiClient;
+    private Location lastLocation;
+    private ObjectModel[] objectList;
+    private LocationManager locationManager;
 
 
-    private static final long GEO_DURATION = 60 * 60 * 1000;
-    private static final String GEOFENCE_REQ_ID = "My Geofence";
-    private static final float GEOFENCE_RADIUS = 500.0f; // in meters
+    private ProgressDialog dialog1;
+    private boolean isListCompleted = false;
 
     public ImageButton infobtn,homebtn,manbtn,mailbtn;
     private Spinner radiusspinner,rumspinner,sqmspinner,prisspinner;
@@ -94,95 +105,224 @@ public class SettingActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
-        //createGoogleApi();
-        initGoogleAPI();
-        simpleGeofenceStore = new SimpleGeofenceStore(this);
+        TextView tx = (TextView) findViewById(R.id.splash_title);
+        Typeface custom_font = Typeface.createFromAsset(getAssets(), "FrederickatheGreat-Regular.ttf");
+        tx.setTypeface(custom_font);
+        checkLocationPermission();
     }
 
-    private void initGoogleAPI() {
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        googleApiClient.connect();
-
+    private void buildGoogleApiClient() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if (result == ConnectionResult.SUCCESS) {
+            Log.i(SettingActivity.TAG, "Building GoogleApiClient");
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            googleApiClient.connect();
+        } else {
+            Toast.makeText(SettingActivity.this, "Google play services unavailable", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
-    private boolean checkPermission() {
-        Log.d(TAG, "checkPermission()");
-        // Ask for permission if it wasn't granted yet
-        return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED );
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }
     }
 
 
-
-
-    // Asks for permission
-    private void askPermission() {
-        Log.d(TAG, "askPermission()");
-        ActivityCompat.requestPermissions(
-                this,
-                new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION },
-                REQ_PERMISSION
-        );
+    private void askLocationPermission() {
+        String locationPermission = android.Manifest.permission.ACCESS_FINE_LOCATION;
+        requestPermission(locationPermission, LOCATION_PERMISSION_REQUEST_MESSAGE, LOCATION_PERMISSION_REQUEST_CODE);
     }
 
-    // Verify user's response of the permission requested
+    public void requestPermission(final String permission, final String permissionExplanationMessage, final int requestCode) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                permission)) {
+
+            DialogFactory.showDialog(this, R.string.permission_required, permissionExplanationMessage, R.string.okay, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    ActivityCompat.requestPermissions(SettingActivity.this,
+                            new String[]{permission}, requestCode);
+                }
+            }, R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    System.exit(0);
+                }
+            }, false);
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{permission}, requestCode);
+        }
+    }
+
+    private void checkLocationPermission() {
+        String locationPermission = android.Manifest.permission.ACCESS_FINE_LOCATION;
+        if (!(havePermission(locationPermission))) {
+            askLocationPermission();
+        } else {
+            buildGoogleApiClient();
+        }
+    }
+
+    public boolean havePermission(String permission) {
+        return Build.VERSION.SDK_INT < 23 || ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult()");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch ( requestCode ) {
-            case REQ_PERMISSION: {
-                if ( grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
-                    getLastKnownLocation();
+                    buildGoogleApiClient();
 
                 } else {
                     // Permission denied
-                    permissionsDenied();
+                    System.exit(0);
                 }
                 break;
             }
         }
     }
 
-    // App cannot work without the permissions
-    private void permissionsDenied() {
-        Log.w(TAG, "permissionsDenied()");
-        // TODO close app and warn user
+    private void showGpsAlert() {
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setMessage("Please enable your GPS to continue")
+                    .setCancelable(false)
+                    .setPositiveButton("Enable GPS",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // set intent to open settings
+                                    Intent callGPSSettingIntent = new Intent(
+                                            android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    if (!isNetworkAvailable(SettingActivity.this)) {
+                                        showDataAlert();
+                                    } else {
+
+                                    }
+                                    startActivity(callGPSSettingIntent);
+                                }
+                            });
+            alertDialogBuilder.setNegativeButton("Cancel",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            System.exit(0);
+                        }
+                    });
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();
+        } else {
+            if (!isNetworkAvailable(SettingActivity.this)) {
+                showDataAlert();
+            } else {
+                startLocationUpdates();
+                getLastKnownLocation();
+            }
+        }
+
+
     }
 
-    // Start location Updates
-    private void startLocationUpdates(){
+    private void showDataAlert() {
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage("Please enable your Mobile data to continue")
+                .setCancelable(false)
+                .setPositiveButton("Enable Mobile data",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // set intent to open settings
+                                Intent callDataSettingIntent = new Intent(
+                                        Settings.ACTION_DATA_ROAMING_SETTINGS);
+                                startActivity(callDataSettingIntent);
+
+                            }
+                        });
+        alertDialogBuilder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        System.exit(0);
+                    }
+                });
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!googleApiClient.isConnected()){
+            buildGoogleApiClient();
+        }
+         else {
+            showGpsAlert();
+        }
+
+
+    }
+
+
+    public static boolean isNetworkAvailable(Context context) {
+        if (context != null) {
+            boolean result = true;
+            ConnectivityManager connectivityManager = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager
+                    .getActiveNetworkInfo();
+            if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
+                result = false;
+            }
+            return result;
+        } else {
+            return false;
+        }
+    }
+
+
+    private void startLocationUpdates() {
         Log.i(TAG, "startLocationUpdates()");
         locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL)
                 .setFastestInterval(FASTEST_INTERVAL);
 
-        if ( checkPermission() )
+        if (checkPermission())
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged ["+location+"]");
+        Log.d(TAG, "onLocationChanged [" + location + "]");
         lastLocation = location;
-
+        writeActualLocation(location);
     }
 
     // GoogleApiClient.ConnectionCallbacks connected
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "onConnected()");
-        getLastKnownLocation();
-
+        showGpsAlert();
+        //recoverGeofenceMarker();
     }
 
     // GoogleApiClient.ConnectionCallbacks suspended
@@ -197,41 +337,55 @@ public class SettingActivity extends AppCompatActivity implements
         Log.w(TAG, "onConnectionFailed()");
     }
 
+    private void writeActualLocation(Location location) {
+        //textLat.setText( "Lat: " + location.getLatitude() );
+        //textLong.setText( "Long: " + location.getLongitude() );
+        Container.getInstance().currentlat = String.valueOf(location.getLatitude());
+        Container.getInstance().currentlng = String.valueOf(location.getLongitude());
+
+
+        //markerLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+    }
+
+    private void writeLastLocation() {
+        writeActualLocation(lastLocation);
+    }
+
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation()");
-        if ( checkPermission() ) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
             lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if ( lastLocation != null ) {
-                Log.i(TAG, "LasKnown location. " +
-                        "Long: " + lastLocation.getLongitude() +
-                        " | Lat: " + lastLocation.getLatitude());
-
-                // startLocationUpdates();
-
-                // get and save location into Container.
-                Container.getInstance().currentlat = String.valueOf(lastLocation.getLatitude());
-                Container.getInstance().currentlng = String.valueOf(lastLocation.getLongitude());
-
-                // This method will be executed once the timer is over
-                // Start your app main activity
-
-
-                //dialog1 = ProgressDialog.show(this, "Loading..",
-                       // "Wait a second...", true);
-                dialog = ProgressDialog.show(this, "Settings",
-                        "Fetching Settings", true);
-                getNoneObjMsg();
-                //getAppInfo();
-
-
-
-            } else {
-                Log.w(TAG, "No location retrieved yet");
-                startLocationUpdates();
-            }
+            return;
         }
-        else askPermission();
+        if ( lastLocation != null ) {
+            Log.i(TAG, "LasKnown location. " +
+                    "Long: " + lastLocation.getLongitude() +
+                    " | Lat: " + lastLocation.getLatitude());
+            writeLastLocation();
+            getNoneObjMsg();
+        } else {
+            Log.w(TAG, "No location retrieved yet");
+            startLocationUpdates();
+        }
     }
+
+
+    // Check for permission to access Location
+    private boolean checkPermission() {
+        Log.d(TAG, "checkPermission()");
+        // Ask for permission if it wasn't granted yet
+        return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED );
+    }
+
+
 
 
     public void getNoneObjMsg()
@@ -842,10 +996,9 @@ public class SettingActivity extends AppCompatActivity implements
                         finish();
                     }else {
                         //Toast.makeText(getApplicationContext(),"Objects available",Toast.LENGTH_SHORT).show();
-                        Container.getInstance().objectList = onPasingJsonObjArraydata(tmp);
-
-                        ObjectModel[] database = Container.getInstance().objectList;
-                        addLocationGeofences();
+                        objectList = onPasingJsonObjArraydata(tmp);
+                        Container.getInstance().objectList = objectList;
+                        addLocationGeofences(objectList);
 
                     }
 
@@ -860,101 +1013,90 @@ public class SettingActivity extends AppCompatActivity implements
 
     }
 
-    public void addLocationGeofences() {
+    public void addLocationGeofences(ObjectModel[] objectListGeo) {
 
-        if (Container.getInstance().objectList == null) {
+        if (objectListGeo == null) {
             Toast.makeText(SettingActivity.this, "Object list empty", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-            Intent i = new Intent(SettingActivity.this, MapActivity.class);
+            dialog1.dismiss();
+            Intent i = new Intent(SettingActivity.this, MainActivity.class);
             startActivity(i);
             finish();
             return;
         }
-        if (Container.getInstance().objectList.length != 0) {
+        if (objectListGeo.length != 0) {
 
-            int length = Container.getInstance().objectList.length;
+            int length = objectListGeo.length;
             // Toast.makeText(Splash.this, "Object list not empty", Toast.LENGTH_SHORT).show();
 
-            for (int i = 0; i < Container.getInstance().objectList.length; i++) {
+            for (int i = 0; i < objectListGeo.length; i++) {
 
-                if (Container.getInstance().objectList[i] == null) {
+                if (objectListGeo[i] == null) {
                     // Toast.makeText(Splash.this, "Object list empty 2", Toast.LENGTH_SHORT).show();
                     break;
                 }
-                Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
-                Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
-                createGeofences(lat, lng);
+                if(i == (objectListGeo.length - 1)){
+                    isListCompleted = true;
+                }
+                Double lat = Double.parseDouble(objectListGeo[i].lat);
+                Double lng = Double.parseDouble(objectListGeo[i].lng);
+                SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
+                String sRadius = settings.getString("MaxRadius", "200");
+                Float radius = Float.valueOf(sRadius);
+                //createGeofences(lat, lng, radius);
+                Geofence geofence = createGeofence( lat, lng, radius);
+                GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
+                addGeofence( geofenceRequest );
 
             }
 
 
-            // close this activity
-            dialog.dismiss();
-            Intent i = new Intent(SettingActivity.this, MapActivity.class);
-            startActivity(i);
-            finish();
-
-
-        }
-        else {
+        } else {
             Toast.makeText(SettingActivity.this, "Object list empty", Toast.LENGTH_SHORT).show();
-            Intent i = new Intent(SettingActivity.this, MapActivity.class);
+            dialog1.dismiss();
+            Intent i = new Intent(SettingActivity.this, MainActivity.class);
             startActivity(i);
             finish();
             return;
         }
     }
 
-
-    public void createGeofences(Double latitude, Double longitude) {
-        SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String sRadius = settings.getString("MaxRadius", "200");
-        Float radius = Float.valueOf(sRadius);
+    private Geofence createGeofence( Double latitude, Double longitude, float radius ) {
+        Log.d(TAG, "createGeofence");
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-        SimpleGeofence simpleGeofence = new SimpleGeofence(
-                geofenceId,                // geofenceId.
-                latitude,
-                longitude,
-                radius,
-                Geofence.NEVER_EXPIRE,
-                Geofence.GEOFENCE_TRANSITION_ENTER,
-                Constants.NOT_CHECKED);
-
-        // Store these flat versions in SharedPreferences and add them to the geofence list.
-        simpleGeofenceStore.setGeofence(geofenceId, simpleGeofence);
-        // Store id list
-        Utility.setGeoFenceIdList(geofenceId, this);
-        //Toast.makeText(Splash.this, "creating geofence", Toast.LENGTH_SHORT).show();
-
-        //setupGeofence(simpleGeofence);
-
-        addGeofence(simpleGeofence.toGeofence());
+        return new Geofence.Builder()
+                .setRequestId(geofenceId)
+                .setCircularRegion( latitude, longitude, radius)
+                .setExpirationDuration( Geofence.NEVER_EXPIRE )
+                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
+                        | Geofence.GEOFENCE_TRANSITION_EXIT )
+                .build();
+    }
+    private GeofencingRequest createGeofenceRequest( Geofence geofence ) {
+        Log.d(TAG, "createGeofenceRequest");
+        return new GeofencingRequest.Builder()
+                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
+                .addGeofence( geofence )
+                .build();
     }
 
-    private void addGeofence(Geofence geofence) {
-        GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .addGeofence(geofence).build();
-
+    private void addGeofence(GeofencingRequest request) {
+        Log.d(TAG, "addGeofence");
         PendingIntent pendingIntent = getGeofenceTransitionPendingIntent();
-        //Toast.makeText(Splash.this, "adding geofence", Toast.LENGTH_SHORT).show();
-
         if (googleApiClient.isConnected()) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 Toast.makeText(SettingActivity.this, "Permission not granted", Toast.LENGTH_SHORT).show();
                 return;
             }
-            LocationServices.GeofencingApi.addGeofences(googleApiClient, geofencingRequest, pendingIntent).setResultCallback(new ResultCallback<Status>() {
+            LocationServices.GeofencingApi.addGeofences(googleApiClient, request, pendingIntent).setResultCallback(new ResultCallback<Status>() {
                 @Override public void onResult(@NonNull Status status) {
                     if (status.isSuccess()) {
-                        //Toast.makeText(Splash.this, "Starting geofence transition service", Toast.LENGTH_SHORT).show();
+                        if (isListCompleted){
+                            dialog1.dismiss();
+                            Intent i = new Intent(SettingActivity.this, MapActivity.class);
+                            startActivity(i);
+                        }
+
 
                     } else {
                         Toast.makeText(SettingActivity.this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
@@ -964,10 +1106,11 @@ public class SettingActivity extends AppCompatActivity implements
             });
         } else {
             googleApiClient.connect();
-            addLocationGeofences();
+            addLocationGeofences(objectList);
             Toast.makeText(SettingActivity.this, "google api client not connected", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private PendingIntent getGeofenceTransitionPendingIntent() {
         Intent intent = new Intent(SettingActivity.this, GeofenceTransitionsIntentService.class);
@@ -1022,230 +1165,11 @@ public class SettingActivity extends AppCompatActivity implements
         return result;
 
     }
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // Call GoogleApiClient connection when starting the Activity
-        googleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        // Disconnect GoogleApiClient when stopping Activity
-        //  googleApiClient.disconnect();
-    }
-
-  /*  public static Intent makeNotificationIntent(Context context, String msg) {
-        Intent intent = new Intent( context, MapActivity.class );
-        intent.putExtra( NOTIFICATION_MSG, msg );
-        return intent;
-    }*/
-    // Create GoogleApiClient instance
-   /* private void createGoogleApi() {
-        Log.d(TAG, "createGoogleApi()");
-        if ( googleApiClient == null ) {
-            googleApiClient = new GoogleApiClient.Builder( this )
-                    .addConnectionCallbacks( this )
-                    .addOnConnectionFailedListener( this )
-                    .addApi( LocationServices.API )
-                    .build();
-        }
-    }
-
-    // Check for permission to access Location
-    private boolean checkPermission() {
-        Log.d(TAG, "checkPermission()");
-        // Ask for permission if it wasn't granted yet
-        return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED );
-    }
-
-    // Asks for permission
-    private void askPermission() {
-        Log.d(TAG, "askPermission()");
-        ActivityCompat.requestPermissions(
-                this,
-                new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION },
-                REQ_PERMISSION
-        );
-    }
-
-    // Verify user's response of the permission requested
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult()");
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch ( requestCode ) {
-            case REQ_PERMISSION: {
-                if ( grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
-                    // Permission granted
-                    getLastKnownLocation();
-
-                } else {
-                    // Permission denied
-                    permissionsDenied();
-                }
-                break;
-            }
-        }
-    }
-
-    // App cannot work without the permissions
-    private void permissionsDenied() {
-        Log.w(TAG, "permissionsDenied()");
-        // TODO close app and warn user
-    } */
-
-    // Start location Updates
-   /* private void startLocationUpdates(){
-        Log.i(TAG, "startLocationUpdates()");
-        locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(UPDATE_INTERVAL)
-                .setFastestInterval(FASTEST_INTERVAL);
-
-        //if ( checkPermission() )
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged ["+location+"]");
-        lastLocation = location;
-
-    }
-
-    // GoogleApiClient.ConnectionCallbacks connected
-   *//* @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG, "onConnected()");
-        getLastKnownLocation();
-
-    }
-
-    // GoogleApiClient.ConnectionCallbacks suspended
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.w(TAG, "onConnectionSuspended()");
-    }
-
-    // GoogleApiClient.OnConnectionFailedListener fail
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.w(TAG, "onConnectionFailed()");
-    } *//*
-
-    // Get last known location
-    private void getLastKnownLocation() {
-        Log.d(TAG, "getLastKnownLocation()");
-        //if ( checkPermission() ) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if ( lastLocation != null ) {
-                Log.i(TAG, "LasKnown location. " +
-                        "Long: " + lastLocation.getLongitude() +
-                        " | Lat: " + lastLocation.getLatitude());
-
-                startLocationUpdates();
-            } else {
-                Log.w(TAG, "No location retrieved yet");
-                startLocationUpdates();
-            }
-       // }
-        //else askPermission();
-    }
-*/
-
-
-    // Start Geofence creation process
-   /* private void startGeofence(int index) {
-        Log.i(TAG, "startGeofence()");
-
-        float lat = Float.valueOf(Container.getInstance().objectList[index].lat);
-        float lng = Float.valueOf(Container.getInstance().objectList[index].lng);
-       // Geofence geofence = createGeofence( new LatLng(19.9,59.34608), GEOFENCE_RADIUS );
-        Geofence geofence = createGeofence( new LatLng(lat,lng), GEOFENCE_RADIUS,index);
-        GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-        addGeofence( geofenceRequest );
-
-    }
-
-
-    // Create a Geofence
-    private Geofence createGeofence( LatLng latLng, float radius , int index) {
-        Log.d(TAG, "createGeofence");
-        return new Geofence.Builder()
-                .setRequestId(String.valueOf(index))
-                .setCircularRegion( latLng.latitude, latLng.longitude, radius)
-                .setExpirationDuration( GEO_DURATION )
-                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
-                        | Geofence.GEOFENCE_TRANSITION_EXIT )
-                .build();
-    }
-
-    // Create a Geofence Request
-    private GeofencingRequest createGeofenceRequest( Geofence geofence ) {
-        Log.d(TAG, "createGeofenceRequest");
-        return new GeofencingRequest.Builder()
-                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
-                .addGeofence( geofence )
-                .build();
-    }
-
-    private PendingIntent geoFencePendingIntent;
-    private final int GEOFENCE_REQ_CODE = 0;
-    private PendingIntent createGeofencePendingIntent() {
-        Log.d(TAG, "createGeofencePendingIntent");
-        if ( geoFencePendingIntent != null )
-            return geoFencePendingIntent;
-
-        Intent intent = new Intent( this, GeofenceTrasitionService.class);
-        return PendingIntent.getService(
-                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-    }
-
-    // Add the created GeofenceRequest to the device's monitoring list
-    private void addGeofence(GeofencingRequest request) {
-        Log.d(TAG, "addGeofence");
-
-        if (checkPermission())
-            LocationServices.GeofencingApi.addGeofences(
-                    googleApiClient,
-                    request,
-                    createGeofencePendingIntent()
-            ).setResultCallback(this);
-    }
-
-    @Override
-    public void onResult(@NonNull Status status) {
-        Log.i(TAG, "onResult: " + status);
-        if ( status.isSuccess() ) {
-
-        } else {
-            // inform about fail
-        }
-    }
-
-    // Draw Geofence circle on GoogleMap
-    private Circle geoFenceLimits;
-    private void drawGeofence() {
-        Log.d(TAG, "drawGeofence()");
-
-        if ( geoFenceLimits != null )
-            geoFenceLimits.remove();
-
-    }
-
-    private final String KEY_GEOFENCE_LAT = "GEOFENCE LATITUDE";
-    private final String KEY_GEOFENCE_LON = "GEOFENCE LONGITUDE";
 
 
 
     // Clear Geofence
-    private void clearGeofence() {
+    /*private void clearGeofence() {
         Log.d(TAG, "clearGeofence()");
         LocationServices.GeofencingApi.removeGeofences(
                 googleApiClient,

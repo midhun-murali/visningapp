@@ -31,11 +31,10 @@
 
         <!--AIzaSyCTRxRJSKDE-Pfq4dsFTdiLkWOn3xt7uSI- map key midhun-->
 
-       <!-- AIzaSyDvMVm1gi4Sa-m21lVvRl-NsEYITQUlqXM - old key removed by midhun-->
+        <!-- AIzaSyDvMVm1gi4Sa-m21lVvRl-NsEYITQUlqXM - old key removed by midhun-->
 
         <!--
         my key: AIzaSyDLVvoy7BOfnR7TXVq0QpxCyxkcWDzpE2U
-
         -->
         <meta-data
             android:name="com.google.android.gms.version"
@@ -45,13 +44,6 @@
 
         <!-- Splash screen -->
         <activity android:name=".Splash">
-            <!--<intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
-        </activity>
-        <activity android:name=".NewSplash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

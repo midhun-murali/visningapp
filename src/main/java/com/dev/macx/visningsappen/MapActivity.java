@@ -243,7 +243,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL)
                 .setFastestInterval(FASTEST_INTERVAL);
-
         if ( checkPermission() )
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }*/
@@ -273,7 +272,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
    /* @Override
     protected void onStart() {
         super.onStart();
-
         // Call GoogleApiClient connection when starting the Activity
         googleApiClient.connect();
     }*/
@@ -281,7 +279,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
    /* @Override
     protected void onStop() {
         super.onStop();
-
         // Disconnect GoogleApiClient when stopping Activity
         googleApiClient.disconnect();
     }*/
@@ -391,48 +388,32 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
     /*@Override
     public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
         mMap.getUiSettings().setScrollGesturesEnabled(false);
         currentzoom = 16.0f;
-
         // add markers in objectlist
         if(Container.getInstance().objectList == null){ return;}
         if (Container.getInstance().objectList.length != 0){
-
             int length = Container.getInstance().objectList.length;
-
             for (int i = 0;i< Container.getInstance().objectList.length;i++){
-
                 if(Container.getInstance().objectList[i] == null){ break;}
                 Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
                 Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
                 LatLng objectloc = new LatLng(lat,lng);
                 mMap.addMarker(new MarkerOptions().position(objectloc).icon(BitmapDescriptorFactory.fromResource(R.drawable.object1)));
-
-
             }
-
         }
-
-
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-
                 infowindow.setVisibility(View.VISIBLE);
-
-
 //set data from marker
                 Double markerlat = marker.getPosition().latitude;
                 Double markerlng = marker.getPosition().longitude;
-
                 for (int i = 0;i< Container.getInstance().objectList.length;i++){
-
                     Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
                     Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
-
                     final int  index = i;
                     if(lat.equals(markerlat) && lng.equals(markerlng)){
                         // this is marker's data
@@ -441,56 +422,41 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                         pricetxt.setText("Pris: " + Container.getInstance().objectList[i].price + " kr");
                         rumtxt.setText("Rum: " + Container.getInstance().objectList[i].rooms + " rok");
                         kvmtxt.setText("Stirek: " + Container.getInstance().objectList[i].sqm + " kvm");
-
-
                         // processing time
                         String startsub = Container.getInstance().objectList[i].start.substring(11,16);
                         String endsub = Container.getInstance().objectList[i].end.substring(11,16);
                         timetxt.setText("Visningstid: " + startsub+"-"+endsub);
-
-
                         //setting url
                         final String object_url = Container.getInstance().objectList[i].url;
                         String htmlstr = "<a href='"+object_url+"'>Kllcka för mer information</a>";
                         Spanned Text = Html.fromHtml(htmlstr);
                         moretxt.setText(Text);
-
                         moretxt.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 increaseNum(index);
                             }
                         });
-
                         // load image photo and logo
                         byte[] decodedString = Base64.decode(Container.getInstance().objectList[i].photo, Base64.DEFAULT);
                         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                         photoimg.setImageBitmap(decodedByte);
-
                         decodedString = Base64.decode(Container.getInstance().objectList[i].logo, Base64.DEFAULT);
                         decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                         logoimg.setImageBitmap(decodedByte);
-
                     }
-
                 }
-
             return false;
             }
         });
-
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-
                 //Do what you want on obtained latLng
                 Log.v("Clicked","now");
                 infowindow.setVisibility(View.INVISIBLE);
-
             }
         });
-
-
     }*/
 
     @Override
@@ -725,19 +691,13 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                     .build();
         }
     }
-
     // Check for permission to access Location
     private boolean checkPermission() {
         Log.d(TAG, "checkPermission()");
         // Ask for permission if it wasn't granted yet
-
-
         return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED );
     }
-
-
-
     // Asks for permission
     private void askPermission() {
         Log.d(TAG, "askPermission()");
@@ -747,7 +707,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 REQ_PERMISSION
         );
     }
-
     // Verify user's response of the permission requested
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -759,7 +718,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
                     // Permission granted
                     getLastKnownLocation();
-
                 } else {
                     // Permission denied
                     permissionsDenied();
@@ -768,7 +726,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
             }
         }
     }
-
     // App cannot work without the permissions
     private void permissionsDenied() {
         Log.w(TAG, "permissionsDenied()");
@@ -793,13 +750,11 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "onConnected()");
         getLastKnownLocation();
-
     }
     @Override
     public void onConnectionSuspended(int i) {
         Toast.makeText(this,"onConnectionSuspended",Toast.LENGTH_SHORT).show();
     }
-
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Toast.makeText(this,"onConnectionFailed",Toast.LENGTH_SHORT).show();
@@ -889,7 +844,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 mGeofenceList.add(simpleGeofence.toGeofence());
             }
         } else {
-            showMessage("No Geofences Added");
+            showMessage("No Geofences Added. Please add using the plus button.");
         }
     }
 
@@ -905,8 +860,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
             @Override
             public void onReceive(Context context, Intent intent) {
-                    mGeofenceList.clear();
-                    fetchGeofencesFromStore();
+                mGeofenceList.clear();
+                fetchGeofencesFromStore();
             }
         };
         //registering our receiver
@@ -924,7 +879,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         String minRoom = settings.getString("Minrooms","1");
         String minSqm = settings.getString("Minsqm","25");
         String maxPrice = settings.getString("Maxprice","7000000");
-
         String latitude =  String.valueOf(lastLocation.getLatitude());
         String longitude = String.valueOf(lastLocation.getLongitude());*/
         dialog = ProgressDialog.show(this, "Searching..",
@@ -1045,7 +999,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 }
                 Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
                 Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
-                createGeofences(lat, lng);
+                String geofenceAddress = Container.getInstance().objectList[i].address;
+                createGeofences(lat, lng, geofenceAddress);
 
             }
 
@@ -1066,7 +1021,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
     }
 
 
-    public void createGeofences(Double latitude, Double longitude) {
+    public void createGeofences(Double latitude, Double longitude, String geofenceAddress) {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
         String sRadius = settings.getString("MaxRadius", "200");
         Float radius = Float.valueOf(sRadius);
@@ -1078,7 +1033,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
                 radius,
                 Geofence.NEVER_EXPIRE,
                 Geofence.GEOFENCE_TRANSITION_ENTER,
-                Constants.NOT_CHECKED);
+                Constants.NOT_CHECKED,
+                geofenceAddress);
 
         // Store these flat versions in SharedPreferences and add them to the geofence list.
         simpleGeofenceStore.setGeofence(geofenceId, simpleGeofence);

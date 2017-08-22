@@ -18,7 +18,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 import com.dev.macx.visningsappen.Utils.SimpleGeofence;
@@ -60,7 +59,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
-       // if(!Container.getInstance().alerton.equals("1")) return;
+        // if(!Container.getInstance().alerton.equals("1")) return;
         GeofencingEvent geoFenceEvent = GeofencingEvent.fromIntent(intent);
         if (geoFenceEvent.hasError()) {
             int errorCode = geoFenceEvent.getErrorCode();
@@ -70,33 +69,48 @@ public class GeofenceTransitionsIntentService extends IntentService {
             Log.e( TAG, errorMsg );
         } else {
 
-            int geoFenceTransition = geoFenceEvent.getGeofenceTransition();
-            // Check if the transition type is of interest
-            if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                    geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ) {
-                // Get the geofence that were triggered
-                List<Geofence> triggeringGeofences = geoFenceEvent.getTriggeringGeofences();
-
-                String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
-
-
             // Get the geofence id triggered. Note that only one geofence can be triggered at a
             // time in this example, but in some cases you might want to consider the full list
             // of geofences triggered.
+            String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)
+                    .getRequestId();
+            SimpleGeofenceStore simpleGeofenceStore = new SimpleGeofenceStore(this);
+            SimpleGeofence simpleGeofence = simpleGeofenceStore.getGeofence(triggeredGeoFenceId);
 
+            int transitionType = geoFenceEvent.getGeofenceTransition();
+            if (Geofence.GEOFENCE_TRANSITION_ENTER == transitionType) {
+                {
                     // Get the geofence that were triggered
-                    sendSimpleNotification("Visnigsappen", geofenceTransitionDetails, this);
+                    List<Geofence> triggeringGeofences = geoFenceEvent.getTriggeringGeofences();
+                    //String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
+                    if(simpleGeofence!= null){
+                        String address = simpleGeofence.getGeofenceAddress();
+                        if(address != null){
+                            sendSimpleNotification("Visnigsappen", address, this);
+                        }
+                    } else {
+                        sendSimpleNotification("Visnigsappen", "You have reached the place you are looking for.", this);
+                    }
+
+                    if(simpleGeofence.getId()== null){
+                        simpleGeofence.setId(String.valueOf(System.currentTimeMillis()));
+                    }
+                    simpleGeofenceStore.setGeofence(simpleGeofence.getId(),simpleGeofence);
                     Intent i = new Intent("android.intent.action.MAIN");
                     this.sendBroadcast(i);
 
                     //String geofenceTransitionDetails = getGeofenceTrasitionDetailsandSendNotification(triggeringGeofences );
 
                 }
+            }
+            if(simpleGeofence.getId()== null){
+                simpleGeofence.setId(String.valueOf(System.currentTimeMillis()));
+            }
+            simpleGeofenceStore.setGeofence(simpleGeofence.getId(),simpleGeofence);
         }
     }
 
-
-    private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
+    /*private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
         ArrayList<String> triggeringGeofencesList = new ArrayList<>();
         for ( Geofence geofence : triggeringGeofences ) {
@@ -109,7 +123,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT )
             status = "Exiting ";
         return status + TextUtils.join( ", ", triggeringGeofencesList);
-    }
+    }*/
 
     public static void sendSimpleNotification(String title, String msg, Context context) {
         NotificationManager mNotificationManager = (NotificationManager)

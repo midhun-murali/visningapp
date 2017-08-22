@@ -16,6 +16,7 @@ public final class Constants {
     public static final String CHECKED_IN = "Checked in";
     public static final String CHECKED_OUT = "Checked out";
     public static final String NOT_CHECKED = "Not checked in";
+    public static final String NULL = "null";
 
     private Constants() {
     }

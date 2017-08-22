@@ -15,6 +15,8 @@ public class SimpleGeofence {
 
     private String status;
 
+    private String geofenceAddress;
+
 
     private final double mLatitude;
     private final double mLongitude;
@@ -31,7 +33,7 @@ public class SimpleGeofence {
      * @param status
      */
     public SimpleGeofence(String geofenceId, double latitude, double longitude, float radius,
-                          long expiration, int transition, String status) {
+                          long expiration, int transition, String status, String geofenceAddress) {
         // Set the instance fields from the constructor.
         this.mId = geofenceId;
         this.mLatitude = latitude;
@@ -40,6 +42,7 @@ public class SimpleGeofence {
         this.mExpirationDuration = expiration;
         this.mTransitionType = transition;
         this.status=status;
+        this.geofenceAddress = geofenceAddress;
     }
 
     // Instance field getters.
@@ -64,6 +67,9 @@ public class SimpleGeofence {
     }
     public int getTransitionType() {
         return mTransitionType;
+    }
+    public String getGeofenceAddress() {
+        return geofenceAddress;
     }
 
     /**

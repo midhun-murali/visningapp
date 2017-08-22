@@ -102,58 +102,23 @@ public class Splash extends AppCompatActivity implements
 
     private void showGpsAlert() {
 
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                alertDialogBuilder.setMessage("Please enable your GPS to continue")
-                        .setCancelable(false)
-                        .setPositiveButton("Enable GPS",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // set intent to open settings
-                                        Intent callGPSSettingIntent = new Intent(
-                                                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                        if (!isNetworkAvailable(Splash.this)) {
-                                            showDataAlert();
-                                        } else {
-                                            initGoogleAPI();
-                                        }
-                                        startActivity(callGPSSettingIntent);
-                                    }
-                                });
-                alertDialogBuilder.setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                System.exit(0);
-                            }
-                        });
-                AlertDialog alert = alertDialogBuilder.create();
-                alert.show();
-            } else {
-                if (!isNetworkAvailable(Splash.this)) {
-                    showDataAlert();
-                } else {
-                    initGoogleAPI();
-                }
-            }
-
-
-    }
-
-    private void showDataAlert() {
-
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-            alertDialogBuilder.setMessage("Please enable your Mobile data to continue")
+            alertDialogBuilder.setMessage("Please enable your GPS to continue")
                     .setCancelable(false)
-                    .setPositiveButton("Enable Mobile data",
+                    .setPositiveButton("Enable GPS",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     // set intent to open settings
-                                    Intent callDataSettingIntent = new Intent(
-                                            Settings.ACTION_DATA_ROAMING_SETTINGS);
-                                    startActivity(callDataSettingIntent);
-                                    initGoogleAPI();
-
+                                    Intent callGPSSettingIntent = new Intent(
+                                            android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    if (!isNetworkAvailable(Splash.this)) {
+                                        showDataAlert();
+                                    } else {
+                                        initGoogleAPI();
+                                    }
+                                    startActivity(callGPSSettingIntent);
                                 }
                             });
             alertDialogBuilder.setNegativeButton("Cancel",
@@ -164,6 +129,41 @@ public class Splash extends AppCompatActivity implements
                     });
             AlertDialog alert = alertDialogBuilder.create();
             alert.show();
+        } else {
+            if (!isNetworkAvailable(Splash.this)) {
+                showDataAlert();
+            } else {
+                initGoogleAPI();
+            }
+        }
+
+
+    }
+
+    private void showDataAlert() {
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage("Please enable your Mobile data to continue")
+                .setCancelable(false)
+                .setPositiveButton("Enable Mobile data",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // set intent to open settings
+                                Intent callDataSettingIntent = new Intent(
+                                        Settings.ACTION_DATA_ROAMING_SETTINGS);
+                                startActivity(callDataSettingIntent);
+                                initGoogleAPI();
+
+                            }
+                        });
+        alertDialogBuilder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        System.exit(0);
+                    }
+                });
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
 
 
     }
@@ -339,8 +339,7 @@ public class Splash extends AppCompatActivity implements
 
                 dialog1 = ProgressDialog.show(this, "Loading..",
                         "Wait a second...", true);
-                getObjectList();
-                //getAppInfo();
+                getAppInfo();
 
 
 
@@ -685,7 +684,6 @@ public class Splash extends AppCompatActivity implements
             String latitude = Container.getInstance().currentlat; // "59.345";
             String longitude =  Container.getInstance().currentlng; //"18.055";
         }
-
         String latitude = Container.getInstance().currentlat; // "59.345";
         String longitude =  Container.getInstance().currentlng; //"18.055";*/
 
@@ -758,17 +756,18 @@ public class Splash extends AppCompatActivity implements
         if (Container.getInstance().objectList.length != 0) {
 
             int length = Container.getInstance().objectList.length;
-           // Toast.makeText(Splash.this, "Object list not empty", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(Splash.this, "Object list not empty", Toast.LENGTH_SHORT).show();
 
             for (int i = 0; i < Container.getInstance().objectList.length; i++) {
 
                 if (Container.getInstance().objectList[i] == null) {
-                   // Toast.makeText(Splash.this, "Object list empty 2", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(Splash.this, "Object list empty 2", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 Double lat = Double.parseDouble(Container.getInstance().objectList[i].lat);
                 Double lng = Double.parseDouble(Container.getInstance().objectList[i].lng);
-                createGeofences(lat, lng);
+                String geofenceAddress = Container.getInstance().objectList[i].address;
+                createGeofences(lat, lng, geofenceAddress);
 
             }
 
@@ -790,7 +789,7 @@ public class Splash extends AppCompatActivity implements
     }
 
 
-    public void createGeofences(Double latitude, Double longitude) {
+    public void createGeofences(Double latitude, Double longitude, String geofenceAddress) {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
         String sRadius = settings.getString("MaxRadius", "200");
         Float radius = Float.valueOf(sRadius);
@@ -802,7 +801,8 @@ public class Splash extends AppCompatActivity implements
                 radius,
                 Geofence.NEVER_EXPIRE,
                 Geofence.GEOFENCE_TRANSITION_ENTER,
-                Constants.NOT_CHECKED);
+                Constants.NOT_CHECKED,
+                geofenceAddress);
 
         // Store these flat versions in SharedPreferences and add them to the geofence list.
         simpleGeofenceStore.setGeofence(geofenceId, simpleGeofence);
@@ -943,20 +943,13 @@ public class Splash extends AppCompatActivity implements
 
 
    /* public ObjectModel[] onPasingJsonObjArraydata(String str) {
-
-
         ObjectModel []result = new ObjectModel[1];
-
         try {
-
             JSONArray jsonRootObject = new JSONArray(str);
             result = Arrays.copyOf(result ,jsonRootObject.length());
-
             for (int i= 0;i<jsonRootObject.length();i++){
                 JSONObject temp = (JSONObject) jsonRootObject.get(i);
                 ObjectModel tempModel = new ObjectModel();
-
-
                 tempModel.maklare = temp.getString("object_maklare");
                 tempModel.logo = temp.getString("object_logo");
                 tempModel.address = temp.getString("object_address");
@@ -972,17 +965,13 @@ public class Splash extends AppCompatActivity implements
                 tempModel.lng = temp.getString("objekt_lng");
                 tempModel.clicked = temp.getString("object_clicked");
                 tempModel.descr = temp.getString("object_descr");
-
                 result[i] = tempModel;
-
                 Log.v("fetching a element!","success");
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return result;
-
     }*/
 
 

@@ -46,13 +46,16 @@ public class SimpleGeofenceStore {
                         Constants.INVALID_LONG_VALUE);
         int transitionType = mPrefs.getInt(getGeofenceFieldKey(id, Constants.KEY_TRANSITION_TYPE),
                 Constants.INVALID_INT_VALUE);
+
+        String geofenceAddress = mPrefs.getString(getGeofenceFieldKey(id, Constants.KEY_ADDRESS), Constants.NULL);
         // If none of the values is incorrect, return the object.
         if (lat != Constants.INVALID_FLOAT_VALUE
                 && lng != Constants.INVALID_FLOAT_VALUE
                 && radius != Constants.INVALID_FLOAT_VALUE
                 && expirationDuration != Constants.INVALID_LONG_VALUE
-                && transitionType !=Constants. INVALID_INT_VALUE) {
-            return new SimpleGeofence(id,lat, lng, radius, expirationDuration, transitionType,status);
+                && transitionType !=Constants. INVALID_INT_VALUE
+                && !geofenceAddress.equalsIgnoreCase(Constants.NULL)) {
+            return new SimpleGeofence(id,lat, lng, radius, expirationDuration, transitionType,status, geofenceAddress);
         }
         // Otherwise, return null.
         return null;
@@ -75,6 +78,8 @@ public class SimpleGeofenceStore {
                 geofence.getExpirationDuration());
         prefs.putInt(getGeofenceFieldKey(id, Constants.KEY_TRANSITION_TYPE),
                 geofence.getTransitionType());
+        prefs.putString(getGeofenceFieldKey(id, Constants.KEY_ADDRESS),
+                geofence.getGeofenceAddress());
         // Commit the changes.
         prefs.commit();
     }
@@ -90,6 +95,7 @@ public class SimpleGeofenceStore {
         prefs.remove(getGeofenceFieldKey(id, Constants.KEY_RADIUS));
         prefs.remove(getGeofenceFieldKey(id, Constants.KEY_EXPIRATION_DURATION));
         prefs.remove(getGeofenceFieldKey(id, Constants.KEY_TRANSITION_TYPE));
+        prefs.remove(getGeofenceFieldKey(id, Constants.KEY_ADDRESS));
         prefs.commit();
     }
 

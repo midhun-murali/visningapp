@@ -41,7 +41,10 @@
             android:value="@integer/google_play_services_version" />
 
 
-
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="782ccbebda6f43f0794b47c74d5ff161528682aa"
+            />
         <!-- Splash screen -->
         <activity android:name=".Splash">
             <intent-filter>
@@ -58,5 +61,4 @@
             />
         <activity android:name=".MapActivity"></activity>
     </application>
-
 </manifest>

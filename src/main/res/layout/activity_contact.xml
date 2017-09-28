@@ -427,11 +427,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3.68">
+            android:layout_weight="5">
             <com.google.android.gms.ads.AdView
                 android:id="@+id/contact_adView"
                 android:layout_width="match_parent"
-                android:layout_height="61dp"
+                android:layout_height="90dp"
 
                 android:gravity="center"
                 ads:adSize="SMART_BANNER"

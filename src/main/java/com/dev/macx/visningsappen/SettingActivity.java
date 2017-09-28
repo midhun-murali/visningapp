@@ -570,7 +570,7 @@ public class SettingActivity extends AppCompatActivity implements
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.v("selected item:", (String)Container.getInstance().distanceList.get(position));
-                Container.getInstance().selectedradius = (String)((String) Container.getInstance().distanceList.get(position));
+                Container.getInstance().selectedradius = (String) Container.getInstance().distanceList.get(position);
 
             }
 
@@ -612,7 +612,7 @@ public class SettingActivity extends AppCompatActivity implements
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.v("selected item:", (String)Container.getInstance().priceList.get(position));
-                Container.getInstance().selectedprice = (String)((String) Container.getInstance().priceList.get(position)).replaceAll("\\s+", "");;
+                Container.getInstance().selectedprice = (String) Container.getInstance().priceList.get(position);
             }
 
             @Override
@@ -620,68 +620,82 @@ public class SettingActivity extends AppCompatActivity implements
 
             }
         });
-
-
-        ArrayList<String> m_radiusArr =  new ArrayList<String>(Container.getInstance().distanceList);
-        for (int i =0;i< Container.getInstance().distanceList.size();i++){
-            m_radiusArr.set(i,Container.getInstance().distanceList.get(i) + " m");
-        }
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_radiusArr);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        radiusspinner.setAdapter(dataAdapter);
-
-        rumspinner = (Spinner)findViewById(R.id.setting_rumspin);
-        ArrayList<String> m_kvmArr =  new ArrayList<String>(Container.getInstance().kvmList);
-        for (int i =0;i< Container.getInstance().kvmList.size();i++){
-            m_kvmArr.set(i,Container.getInstance().kvmList.get(i) + " rum");
-        }
-        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_kvmArr);
-        rumspinner.setAdapter(dataAdapter);
-
-
-        sqmspinner = (Spinner)findViewById(R.id.setting_sqmspin);
-        ArrayList<String> m_sqmArr =  new ArrayList<String>(Container.getInstance().sqmList);
-        for (int i =0;i< Container.getInstance().sqmList.size();i++){
-            m_sqmArr.set(i,Container.getInstance().sqmList.get(i) + " m2");
-        }
-        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_sqmArr);
-        sqmspinner.setAdapter(dataAdapter);
-
-
-        prisspinner = (Spinner)findViewById(R.id.setting_prisspin);
-        ArrayList<String> m_prisArr =  new ArrayList<String>(Container.getInstance().priceList);
-        for (int i =0;i< Container.getInstance().priceList.size();i++){
-            m_prisArr.set(i,Container.getInstance().priceList.get(i) + " kr");
-        }
-        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_prisArr);
-        prisspinner.setAdapter(dataAdapter);
-
-        swalert = (Switch)findViewById(R.id.swalert);
-        swalert.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    Log.v("alert","on");
-                    Container.getInstance().alerton = "1";
-                }else{
-                    Log.v("alert","off");
-                    Container.getInstance().alerton = "0";
+        if(Container.getInstance() != null) {
+            ArrayAdapter<String> dataAdapter;
+            if(Container.getInstance().distanceList != null) {
+                radiusspinner = (Spinner)findViewById(R.id.setting_radiusspin);
+                ArrayList<String> m_radiusArr = new ArrayList<String>(Container.getInstance().distanceList);
+                for (int i = 0; i < Container.getInstance().distanceList.size(); i++) {
+                    m_radiusArr.set(i, Container.getInstance().distanceList.get(i) + " m");
                 }
+                dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_radiusArr);
+                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                radiusspinner.setAdapter(dataAdapter);
+                radiusspinner.setSelection(Container.getInstance().distanceList.indexOf(Container.getInstance().selectedradius));
             }
-        });
-        swsound = (Switch)findViewById(R.id.swsound);
-        swsound.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    Log.v("sound","on");
-                    Container.getInstance().soundon = "1";
-                }else{
-                    Log.v("sound","off");
-                    Container.getInstance().soundon = "0";
+
+            if(Container.getInstance().kvmList != null) {
+                rumspinner = (Spinner) findViewById(R.id.setting_rumspin);
+                ArrayList<String> m_kvmArr = new ArrayList<String>(Container.getInstance().kvmList);
+                for (int i = 0; i < Container.getInstance().kvmList.size(); i++) {
+                    m_kvmArr.set(i, Container.getInstance().kvmList.get(i) + " rum");
                 }
+                dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_kvmArr);
+                rumspinner.setAdapter(dataAdapter);
+                rumspinner.setSelection(Container.getInstance().kvmList.indexOf(Container.getInstance().selectedrum));
             }
-        });
+
+            if(Container.getInstance().sqmList != null) {
+                sqmspinner = (Spinner) findViewById(R.id.setting_sqmspin);
+                ArrayList<String> m_sqmArr = new ArrayList<String>(Container.getInstance().sqmList);
+                for (int i = 0; i < Container.getInstance().sqmList.size(); i++) {
+                    m_sqmArr.set(i, Container.getInstance().sqmList.get(i) + " m2");
+                }
+                dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_sqmArr);
+                sqmspinner.setAdapter(dataAdapter);
+                sqmspinner.setSelection(Container.getInstance().sqmList.indexOf(Container.getInstance().selectedsqm));
+            }
+
+
+            if(Container.getInstance().priceList != null) {
+                prisspinner = (Spinner) findViewById(R.id.setting_prisspin);
+                ArrayList<String> m_prisArr = new ArrayList<String>(Container.getInstance().priceList);
+                for (int i = 0; i < Container.getInstance().priceList.size(); i++) {
+                    m_prisArr.set(i, Container.getInstance().priceList.get(i) + " kr");
+                }
+                dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, m_prisArr);
+                prisspinner.setAdapter(dataAdapter);
+                prisspinner.setSelection(Container.getInstance().priceList.indexOf(Container.getInstance().selectedprice));
+            }
+
+            swalert = (Switch) findViewById(R.id.swalert);
+            swalert.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        Log.v("alert", "on");
+                        Container.getInstance().alerton = "1";
+                    } else {
+                        Log.v("alert", "off");
+                        Container.getInstance().alerton = "0";
+                    }
+                }
+            });
+            swsound = (Switch) findViewById(R.id.swsound);
+            swsound.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        Log.v("sound", "on");
+                        Container.getInstance().soundon = "1";
+                    } else {
+                        Log.v("sound", "off");
+                        Container.getInstance().soundon = "0";
+                    }
+                }
+            });
+
+        }
 
         okbtn = (Button)findViewById(R.id.setting_okbtn);
         okbtn.setOnClickListener(new View.OnClickListener() {
@@ -699,7 +713,6 @@ public class SettingActivity extends AppCompatActivity implements
                 editor.putString("alerton", Container.getInstance().alerton);
                 editor.putString("soundon", Container.getInstance().soundon);
 
-                String radius = Container.getInstance().selectedradius;
 
 
 
@@ -729,17 +742,20 @@ public class SettingActivity extends AppCompatActivity implements
 
         // at first loading, let's load previous setting values
 
-        radiusspinner.setSelection(Container.getInstance().distanceList.indexOf(Container.getInstance().selectedradius));
-        rumspinner.setSelection(Container.getInstance().kvmList.indexOf(Container.getInstance().selectedrum));
-        sqmspinner.setSelection(Container.getInstance().sqmList.indexOf(Container.getInstance().selectedsqm));
-        prisspinner.setSelection(Container.getInstance().priceList.indexOf(Container.getInstance().selectedprice));
+        if(Container.getInstance() != null) {
+            radiusspinner.setSelection(Container.getInstance().distanceList.indexOf(Container.getInstance().selectedradius));
+            rumspinner.setSelection(Container.getInstance().kvmList.indexOf(Container.getInstance().selectedrum));
+            sqmspinner.setSelection(Container.getInstance().sqmList.indexOf(Container.getInstance().selectedsqm));
+            prisspinner.setSelection(Container.getInstance().priceList.indexOf(Container.getInstance().selectedprice));
 
-        if(Container.getInstance().alerton != null && Container.getInstance().alerton.equals("1")){
-            swalert.setChecked(true);
+            if(Container.getInstance().alerton != null && Container.getInstance().alerton.equals("1")){
+                swalert.setChecked(true);
+            }
+            if(Container.getInstance().soundon != null && Container.getInstance().soundon.equals("1")){
+                swsound.setChecked(true);
+            }
         }
-        if(Container.getInstance().soundon != null && Container.getInstance().soundon.equals("1")){
-            swsound.setChecked(true);
-        }
+
 
         dialog.dismiss();
 
@@ -760,8 +776,6 @@ public class SettingActivity extends AppCompatActivity implements
         dialog = ProgressDialog.show(this, "Searching..",
                 "Wait a second...", true);
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String maxRadius = "10000";
-        Container.getInstance().selectedradius = maxRadius;
 
         String minRoom = settings.getString("Minrooms","1");
         Container.getInstance().selectedrum = minRoom;
@@ -771,6 +785,7 @@ public class SettingActivity extends AppCompatActivity implements
 
         String maxPrice = settings.getString("Maxprice","10000000");
         Container.getInstance().selectedprice = maxPrice;
+        maxPrice = maxPrice.replaceAll("\\s+", "");
 
         String latitude, longitude;
         //if(Container.getInstance().currentlat == null){
@@ -792,7 +807,7 @@ public class SettingActivity extends AppCompatActivity implements
         /*String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
                 + "Latitude=" + latitude + "&" +"Longitude=" + longitude;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;*/
-        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + maxRadius + "&Minsqm=" + minSqm;
+        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + "10000" + "&Minsqm=" + minSqm;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;
 
 
@@ -907,8 +922,9 @@ public class SettingActivity extends AppCompatActivity implements
 
     public void createGeofences(Double latitude, Double longitude, String geofenceAddress) {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String sRadius = settings.getString("MaxRadius", "200");
-        Float radius = Float.valueOf(sRadius);
+        String maxRadius = settings.getString("MaxRadius","200");
+        Container.getInstance().selectedradius = maxRadius;
+        Float radius = Float.valueOf(maxRadius);
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

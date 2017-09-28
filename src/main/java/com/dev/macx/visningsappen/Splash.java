@@ -28,6 +28,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.dev.macx.visningsappen.Utils.Constants;
 import com.dev.macx.visningsappen.Utils.DialogFactory;
 import com.dev.macx.visningsappen.Utils.SimpleGeofence;
@@ -57,6 +58,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import io.fabric.sdk.android.Fabric;
+
 
 public class Splash extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -84,6 +87,7 @@ public class Splash extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        Fabric.with(this, new Crashlytics());
 
         TextView tx = (TextView)findViewById(R.id.splash_title);
 
@@ -649,8 +653,6 @@ public class Splash extends AppCompatActivity implements
         // get saved default settings.
 
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String maxRadius = "10000";
-        Container.getInstance().selectedradius = maxRadius;
 
         String minRoom = settings.getString("Minrooms","1");
         Container.getInstance().selectedrum = minRoom;
@@ -660,6 +662,7 @@ public class Splash extends AppCompatActivity implements
 
         String maxPrice = settings.getString("Maxprice","10000000");
         Container.getInstance().selectedprice = maxPrice;
+        maxPrice = maxPrice.replaceAll("\\s+", "");
 
         String alerton = settings.getString("alerton","1");
         Container.getInstance().alerton = alerton;
@@ -693,7 +696,7 @@ public class Splash extends AppCompatActivity implements
 
         /*String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
                 + "Latitude=" + latitude + "&" +"Longitude=" + longitude;*/
-        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + maxRadius + "&Minsqm=" + minSqm;
+        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + "10000" + "&Minsqm=" + minSqm;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;
         //String info_url = "http://visningsappen.se/communicationModel/getObject.php?Latitude=59.328720&Longitude=18.029720&Minrooms=1&Maxprice=10000000&MaxRadius=250&Minsqm=50";
 
@@ -791,8 +794,9 @@ public class Splash extends AppCompatActivity implements
 
     public void createGeofences(Double latitude, Double longitude, String geofenceAddress) {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String sRadius = settings.getString("MaxRadius", "200");
-        Float radius = Float.valueOf(sRadius);
+        String maxRadius = settings.getString("MaxRadius","200");
+        Container.getInstance().selectedradius = maxRadius;
+        Float radius = Float.valueOf(maxRadius);
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

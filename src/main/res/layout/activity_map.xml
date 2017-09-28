@@ -159,62 +159,15 @@
                         android:layout_weight="3"
                         android:id="@+id/objinfo_logoimg"/>
 
-
-
-
-
                 </LinearLayout>
-
-
 
 
             </LinearLayout>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageButton
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                ads:srcCompat="@drawable/zoomout1"
-                android:id="@+id/zoomout"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginRight="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginBottom="11dp" />
-
-            <ImageButton
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                ads:srcCompat="@drawable/zoomin"
-                android:id="@+id/zoomin"
-                android:layout_above="@+id/zoomout"
-                android:layout_alignLeft="@+id/zoomout"
-                android:layout_alignStart="@+id/zoomout"
-                android:layout_marginBottom="5dp" />
-        </RelativeLayout>
     </FrameLayout>
 
 

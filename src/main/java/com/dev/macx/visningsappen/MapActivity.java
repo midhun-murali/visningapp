@@ -90,7 +90,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
 
-    public ImageButton infobtn, homebtn, settingbtn, mailbtn, zoominbtn, zoomoutbtn;
+    public ImageButton infobtn, homebtn, settingbtn, mailbtn;
     private GoogleMap mMap;
     private View infowindow;
 
@@ -352,38 +352,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         moretxt = (TextView) findViewById(R.id.objinfo_objinfo_moretxt);
         photoimg = (ImageView) findViewById(R.id.objinfo_photoimg);
         logoimg = (ImageView) findViewById(R.id.objinfo_logoimg);
-
-        zoominbtn = (ImageButton) findViewById(R.id.zoomin);
-        zoomoutbtn = (ImageButton) findViewById(R.id.zoomout);
-
-        zoominbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(currentzoom < 17){
-                    currentzoom += 0.5;
-                    float  currentlat = Float.valueOf(Container.getInstance().currentlat);
-                    float  currentlng = Float.valueOf(Container.getInstance().currentlng);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentlat,currentlng), currentzoom));
-                }
-
-            }
-        });
-        zoomoutbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(currentzoom > 15){
-                    currentzoom -= 0.5;
-                    float  currentlat = Float.valueOf(Container.getInstance().currentlat);
-                    float  currentlng = Float.valueOf(Container.getInstance().currentlng);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentlat,currentlng), currentzoom));
-                }
-
-            }
-        });
-
-
-
-
     }
 
     /*@Override
@@ -884,8 +852,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         dialog = ProgressDialog.show(this, "Searching..",
                 "Wait a second...", true);
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String maxRadius = "10000";
-        Container.getInstance().selectedradius = maxRadius;
 
         String minRoom = settings.getString("Minrooms","1");
         Container.getInstance().selectedrum = minRoom;
@@ -895,6 +861,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
         String maxPrice = settings.getString("Maxprice","10000000");
         Container.getInstance().selectedprice = maxPrice;
+        maxPrice = maxPrice.replaceAll("\\s+", "");
+
         String latitude, longitude;
         //if(Container.getInstance().currentlat == null){
         if(Container.getInstance().currentlat != null){
@@ -916,7 +884,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
         /*String send_data = "MaxRadius=" + maxRadius + "&" + "Minrooms=" + minRoom + "&" + "Minsqm=" + minSqm + "&" +"Maxprice=" +maxPrice +"&"
                 + "Latitude=" + latitude + "&" +"Longitude=" + longitude;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;*/
-        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + maxRadius + "&Minsqm=" + minSqm;
+        String send_data = "Latitude=" + latitude + "&Longitude=" + longitude + "&Minrooms=" + minRoom + "&Maxprice=" + maxPrice + "&MaxRadius=" + "10000" + "&Minsqm=" + minSqm;
         String info_url = "http://visningsappen.se/communicationModel/getObject.php?" + send_data;
 
 
@@ -1023,8 +991,9 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnInfoWi
 
     public void createGeofences(Double latitude, Double longitude, String geofenceAddress) {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("PREF_NAME", 0);
-        String sRadius = settings.getString("MaxRadius", "200");
-        Float radius = Float.valueOf(sRadius);
+        String maxRadius = settings.getString("MaxRadius","200");
+        Container.getInstance().selectedradius = maxRadius;
+        Float radius = Float.valueOf(maxRadius);
         String geofenceId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         SimpleGeofence simpleGeofence = new SimpleGeofence(
                 geofenceId,                // geofenceId.

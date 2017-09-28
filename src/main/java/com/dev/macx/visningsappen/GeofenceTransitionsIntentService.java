@@ -129,8 +129,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
         NotificationManager mNotificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent notificationIntent = new Intent(context, MapActivity.class);
-        notificationIntent.putExtra("directmap", "true");
+        Intent notificationIntent = new Intent(context, Splash.class);
+        //notificationIntent.putExtra("directmap", "true");
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
                 Intent.FLAG_ACTIVITY_NEW_TASK);
